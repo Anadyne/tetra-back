@@ -10,10 +10,10 @@ import org.fsf.tetra.module.logger.{ Logger, _ }
 import io.circe.generic.auto._
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
+import sttp.model.StatusCodes
 import sttp.tapir.DecodeResult.Error
 import sttp.tapir._
 import sttp.tapir.json.circe._
-import sttp.tapir.model.StatusCodes
 import sttp.tapir.server.http4s._
 import sttp.tapir.server.{ DecodeFailureHandling, ServerDefaults }
 import zio.interop.catz._
