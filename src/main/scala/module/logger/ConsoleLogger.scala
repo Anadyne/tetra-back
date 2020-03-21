@@ -4,7 +4,7 @@ import org.fsf.tetra.implicits.Throwable._
 import zio._
 import zio.console.Console
 
-trait ConsoleLogger extends Logger.Service with Console {
+trait ConsoleLogger extends Logger.Service with Console.Service {
 
   def error(message: => String): ZIO[Any, Nothing, Unit] = console.putStr(message)
 

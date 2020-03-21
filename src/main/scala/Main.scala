@@ -14,9 +14,9 @@ import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware.Logger
-import tapir.docs.openapi._
-import tapir.openapi.circe.yaml._
-import tapir.swagger.http4s.SwaggerHttp4s
+import sttp.tapir.docs.openapi._
+import sttp.tapir.openapi.circe.yaml._
+import sttp.tapir.swagger.http4s.SwaggerHttp4s
 import zio._
 import zio.clock.Clock
 import zio.console.putStrLn

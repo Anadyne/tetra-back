@@ -18,7 +18,7 @@ lazy val zioDeps = libraryDependencies ++= Seq(
   "dev.zio" %% "zio-interop-cats" % Versions.zioInteropCats
 )
 
-lazy val http4sDeps = libraryDependencies ++= Seq(
+lazy val commonDeps = libraryDependencies ++= Seq(
   "org.http4s"                  %% "http4s-core"              % Versions.http4s,
   "org.http4s"                  %% "http4s-dsl"               % Versions.http4s,
   "org.http4s"                  %% "http4s-blaze-server"      % Versions.http4s,
@@ -36,7 +36,9 @@ lazy val http4sDeps = libraryDependencies ++= Seq(
   "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-http4s"  % Versions.tapir,
   "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"       % Versions.tapir,
   "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % Versions.tapir,
-  "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % Versions.tapir
+  "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % Versions.tapir,
+  "com.h2database"              % "h2"                        % Versions.h2database,
+  "ch.qos.logback"              % "logback-classic"           % Versions.logback
 )
 
 lazy val root = (project in file("."))
@@ -48,8 +50,11 @@ lazy val root = (project in file("."))
     maxErrors := 5,
     commonSettings,
     zioDeps,
+    commonDeps,
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
   )
+
+addCompilerPlugin("org.typelevel" %% "kind-projector" % Versions.kindProjector cross CrossVersion.full)
 
 // Aliases
 addCommandAlias("rel", "reload")

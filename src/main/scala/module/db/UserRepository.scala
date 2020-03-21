@@ -5,7 +5,6 @@ import org.fsf.tetra.model.database.User
 import zio.ZIO
 
 trait UserRepository {
-
   val repository: UserRepository.Service
 }
 
