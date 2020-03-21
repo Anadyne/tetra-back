@@ -1,3 +1,5 @@
-addSbtPlugin("org.scalameta"             % "sbt-scalafmt" % "2.3.2")
-addSbtPlugin("ch.epfl.scala"             % "sbt-scalafix" % "0.9.12")
-addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat" % "0.1.11")
+addSbtPlugin("org.scalameta"             % "sbt-scalafmt"       % "2.3.2")
+addSbtPlugin("ch.epfl.scala"             % "sbt-scalafix"       % "0.9.12")
+addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat"       % "0.1.11")
+addSbtPlugin("au.com.onegeek"            % "sbt-dotenv"         % "2.1.147")
+addSbtPlugin("org.duhemm"                % "sbt-errors-summary" % "0.6.3")

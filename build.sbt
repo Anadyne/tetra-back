@@ -1,5 +1,3 @@
-import Versions._
-
 resolvers ++= Seq(
   Resolver.mavenLocal,
   Resolver.sonatypeRepo("releases"),
@@ -13,23 +11,41 @@ lazy val commonSettings = Seq(
   )
 )
 
-lazy val catsDeps = libraryDependencies ++= Seq(
-  "org.typelevel" %% "cats-core" % catsVersion
+lazy val zioDeps = libraryDependencies ++= Seq(
+  "dev.zio" %% "zio"              % Versions.zio,
+  "dev.zio" %% "zio-test"         % Versions.zio % "test",
+  "dev.zio" %% "zio-test-sbt"     % Versions.zio % "test",
+  "dev.zio" %% "zio-interop-cats" % Versions.zioInteropCats
 )
 
-lazy val zioDeps = libraryDependencies ++= Seq(
-  "dev.zio" %% "zio"          % zioVersion,
-  "dev.zio" %% "zio-test"     % zioVersion % "test",
-  "dev.zio" %% "zio-test-sbt" % zioVersion % "test"
+lazy val http4sDeps = libraryDependencies ++= Seq(
+  "org.http4s"                  %% "http4s-core"              % Versions.http4s,
+  "org.http4s"                  %% "http4s-dsl"               % Versions.http4s,
+  "org.http4s"                  %% "http4s-blaze-server"      % Versions.http4s,
+  "org.http4s"                  %% "http4s-circe"             % Versions.http4s,
+  "io.circe"                    %% "circe-generic"            % Versions.circe,
+  "io.getquill"                 %% "quill-jdbc"               % Versions.quill,
+  "is.cir"                      %% "ciris-cats"               % Versions.ciris,
+  "is.cir"                      %% "ciris-cats-effect"        % Versions.ciris,
+  "is.cir"                      %% "ciris-core"               % Versions.ciris,
+  "is.cir"                      %% "ciris-enumeratum"         % Versions.ciris,
+  "is.cir"                      %% "ciris-generic"            % Versions.ciris,
+  "is.cir"                      %% "ciris-refined"            % Versions.ciris,
+  "com.softwaremill.sttp.tapir" %% "tapir-core"               % Versions.tapir,
+  "com.softwaremill.sttp.tapir" %% "tapir-http4s-server"      % Versions.tapir,
+  "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-http4s"  % Versions.tapir,
+  "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"       % Versions.tapir,
+  "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % Versions.tapir,
+  "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % Versions.tapir
 )
 
 lazy val root = (project in file("."))
   .settings(
-    organization := "Neurodyne",
-    name := "zio-top",
+    organization := "FSF",
+    name := "tetra-back",
     version := "0.0.1",
     scalaVersion := "2.13.1",
-    maxErrors := 3,
+    maxErrors := 5,
     commonSettings,
     zioDeps,
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
