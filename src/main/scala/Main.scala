@@ -1,8 +1,6 @@
 package org.fsf.tetra
 
-import scala.util.Try
-
-import org.fsf.tetra.model.config.Application
+import org.fsf.tetra.model.config.config.{ loadConfig, Application }
 import org.fsf.tetra.module.db.userRepository._
 import org.fsf.tetra.route.UserRoute
 import org.http4s.HttpApp
@@ -13,10 +11,9 @@ import org.http4s.server.middleware.CORS
 import org.http4s.server.middleware.Logger
 
 import cats.effect.ExitCode
-import eu.timepit.refined.auto._
+import sttp.tapir.docs.openapi._
 import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.swagger.http4s.SwaggerHttp4s
-import sttp.tapir.docs.openapi._
 
 import zio.clock.Clock
 import zio.console.putStrLn
@@ -36,11 +33,10 @@ object Main extends App {
 
   val env = ZEnv.live ++ UserRepository.live
 
-  def run(args: List[String]) = {
+  def run() = {
     val res = for {
-      cfg     <- ZIO.fromTry(Try(Application.getConfig))
+      cfg     <- ZIO.fromEither(loadConfig)
       prog    = runHttp(finalHttpApp, cfg)
-      appCfg  = Application.appConfig(cfg)
       program <- prog.provideLayer(env)
     } yield program
 
@@ -50,7 +46,7 @@ object Main extends App {
   def runHttp[R <: Clock](app: HttpApp[AppTask], cfg: Application) = ZIO.runtime[AppEnvironment].flatMap {
     implicit rts =>
       BlazeServerBuilder[AppTask]
-        .bindHttp(cfg.server.port, cfg.server.host.getHostAddress)
+        .bindHttp(cfg.server.port, cfg.server.host)
         .withHttpApp(CORS(app))
         .serve
         .compile[AppTask, AppTask, ExitCode]

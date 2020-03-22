@@ -34,24 +34,12 @@ lazy val tapirDeps = libraryDependencies ++= Seq(
   "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % Version.tapir
 )
 
-lazy val cirDeps = libraryDependencies ++= Seq(
-  // "is.cir" %% "ciris"            % Version.ciris,
-  // "is.cir" %% "ciris-refined"    % Version.ciris,
-  // "is.cir" %% "ciris-enumeratum" % Version.ciris,
-  // "is.cir" %% "ciris-squants"    % Version.ciris
-  "is.cir" %% "ciris-cats"        % Version.ciris,
-  "is.cir" %% "ciris-cats-effect" % Version.ciris,
-  "is.cir" %% "ciris-core"        % Version.ciris,
-  "is.cir" %% "ciris-enumeratum"  % Version.ciris,
-  "is.cir" %% "ciris-generic"     % Version.ciris,
-  "is.cir" %% "ciris-refined"     % Version.ciris
-)
-
 lazy val commonDeps = libraryDependencies ++= Seq(
-  "io.circe"       %% "circe-generic"  % Version.circe,
-  "io.getquill"    %% "quill-jdbc"     % Version.quill,
-  "com.h2database" % "h2"              % Version.h2database,
-  "ch.qos.logback" % "logback-classic" % Version.logback
+  "io.circe"              %% "circe-generic"  % Version.circe,
+  "io.getquill"           %% "quill-jdbc"     % Version.quill,
+  "com.github.pureconfig" %% "pureconfig"     % Version.pureconfig,
+  "com.h2database"        % "h2"              % Version.h2database,
+  "ch.qos.logback"        % "logback-classic" % Version.logback
 )
 
 lazy val root = (project in file("."))
@@ -65,7 +53,6 @@ lazy val root = (project in file("."))
     zioDeps,
     http4sDeps,
     tapirDeps,
-    cirDeps,
     commonDeps,
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)

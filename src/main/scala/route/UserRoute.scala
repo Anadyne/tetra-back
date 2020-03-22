@@ -6,6 +6,7 @@ import org.fsf.tetra.model.response.{ BadRequestResponse, ErrorResponse, Interna
 import org.fsf.tetra.model.{ DBFailure, ExpectedFailure, NotFoundFailure }
 import org.fsf.tetra.module.db.userRepository.UserRepository
 import org.http4s._
+import org.http4s.dsl.Http4sDsl
 
 import cats.syntax.semigroupk._
 import io.circe.generic.auto._
@@ -19,7 +20,6 @@ import sttp.tapir.server.{ DecodeFailureHandling }
 
 import zio.interop.catz._
 import zio.{ RIO, ZIO }
-import org.http4s.dsl.Http4sDsl
 
 class UserRoute[R <: UserRepository] extends Http4sDsl[RIO[R, *]] {
   private implicit val customServerOptions: Http4sServerOptions[RIO[R, *]] = Http4sServerOptions
