@@ -21,8 +21,24 @@ import zio._
 import zio.clock.Clock
 import zio.console.putStrLn
 import zio.interop.catz._
+import sttp.tapir.{ Endpoint }
+import org.http4s.{ EntityBody, HttpRoutes }
+import sttp.tapir.server.http4s.{ Http4sServerOptions }
+import sttp.tapir.server.ServerEndpoint
 
 object Main extends App {
+
+  // extension methods for ZIO; not a strict requirement, but they make working with ZIO much nicer
+  implicit class ZioEndpoint[I, E, O](e: Endpoint[I, E, O, EntityBody[Task]]) {
+    def toZioRoutes(logic: I => IO[E, O])(implicit serverOptions: Http4sServerOptions[Task]): HttpRoutes[Task] = {
+      import sttp.tapir.server.http4s._
+      e.toRoutes(i => logic(i).either)
+    }
+
+    def zioServerLogic(logic: I => IO[E, O]): ServerEndpoint[I, E, O, EntityBody[Task], Task] =
+      ServerEndpoint(e, logic(_).either)
+  }
+
   type AppEnvironment = Clock with UserRepository /* with MyLogger */
 
   private val userRoute = new UserRoute[AppEnvironment]

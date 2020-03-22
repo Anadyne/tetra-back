@@ -65,7 +65,9 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
     .out(emptyOutput)
 
   val getRoutes: HttpRoutes[RIO[R, *]] = {
-    getUserEndPoint.toRoutes(userId => handleError(getUser(userId))) /* <+> createUserEndPoint.toRoutes(user => handleError(create(user))) <+>  deleteUserEndPoint.toRoutes { id =>
+    getUserEndPoint.toRoutes(userId => handleError(getUser(userId))) <+> createUserEndPoint.toRoutes(user =>
+      handleError(UserRepository.create(user))
+    ) /* <+> deleteUserEndPoint.toRoutes { id =>
       val result = for {
         _    <- debug(s"id: $id")
         user <- getUser(id)
@@ -83,7 +85,7 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
   private def getUser(userId: Long): ZIO[R, ExpectedFailure, User] =
     for {
       _    <- debug(s"id: $userId")
-      user <- get(userId)
+      user <- UserRepository.get(userId)
       u <- user match {
             case None    => ZIO.fail(NotFoundFailure(s"Can not find a user by $userId"))
             case Some(s) => ZIO.succeed(s)
