@@ -43,7 +43,11 @@ lazy val commonDeps = libraryDependencies ++= Seq(
 )
 
 lazy val root = (project in file("."))
+  .enablePlugins(JavaAppPackaging, DockerSpotifyClientPlugin)
   .settings(
+    packageName in Docker := "tetra",
+    dockerUsername in Docker := Some("tampler"),
+    dockerExposedPorts in Docker := Seq(8080),
     organization := "FSF",
     name := "tetra-back",
     version := "0.0.1",
@@ -54,8 +58,7 @@ lazy val root = (project in file("."))
     http4sDeps,
     tapirDeps,
     commonDeps,
-    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
-    addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
+    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
   )
 
 // Aliases
