@@ -3,6 +3,7 @@ package org.fsf.tetra.model.config
 import java.net.InetAddress
 
 import scala.jdk.CollectionConverters._
+
 import com.typesafe.config.{ ConfigFactory }
 
 import ciris.api.Id

@@ -1,11 +1,13 @@
 package org.fsf.tetra.module.db
 
-import zio.{ Has, Ref, ZIO, ZLayer }
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.{ DBFailure, ExpectedFailure }
 
 import com.typesafe.config.Config
+
 import io.getquill.{ H2JdbcContext, SnakeCase }
+
+import zio.{ Has, Ref, ZIO, ZLayer }
 
 object userRepository {
 

@@ -1,9 +1,10 @@
 package org.fsf.tetra.module.db
 
-import zio.{ ZIO, ZLayer }
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.{ ExpectedFailure }
 import org.fsf.tetra.module.db.userRepository._
+
+import zio.{ ZIO, ZLayer }
 
 object mockRepository {
 

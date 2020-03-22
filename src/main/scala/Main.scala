@@ -2,27 +2,26 @@ package org.fsf.tetra
 
 import scala.util.Try
 
-import cats.effect.ExitCode
 import org.fsf.tetra.model.config.Application
 import org.fsf.tetra.module.db.userRepository._
 import org.fsf.tetra.route.UserRoute
-import eu.timepit.refined.auto._
+import org.http4s.HttpApp
 import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
+import org.http4s.server.middleware.CORS
 import org.http4s.server.middleware.Logger
-import sttp.tapir.docs.openapi._
-import sttp.tapir.openapi.circe.yaml._
-// import org.fsf.tetra.module.logger.logger.{ Logger => AppLogger }
 
+import cats.effect.ExitCode
+import eu.timepit.refined.auto._
+import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.swagger.http4s.SwaggerHttp4s
-import zio.{ RIO, ZEnv, ZIO }
+import sttp.tapir.docs.openapi._
+
 import zio.clock.Clock
 import zio.console.putStrLn
 import zio.interop.catz._
-
-import org.http4s.HttpApp
-import org.http4s.server.middleware.CORS
+import zio.{ RIO, ZEnv, ZIO }
 
 object Main extends App {
 

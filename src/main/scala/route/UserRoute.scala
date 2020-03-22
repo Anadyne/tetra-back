@@ -1,25 +1,25 @@
 package org.fsf.tetra.route
 
-import cats.syntax.semigroupk._
 import org.fsf.tetra.implicits.Throwable._
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.response.{ BadRequestResponse, ErrorResponse, InternalServerErrorResponse, NotFoundResponse }
 import org.fsf.tetra.model.{ DBFailure, ExpectedFailure, NotFoundFailure }
-import org.fsf.tetra.module.db._
-// import org.fsf.tetra.module.logger.logger.{ Logger => AppLogger }
-import io.circe.generic.auto._
+import org.fsf.tetra.module.db.userRepository.UserRepository
 import org.http4s._
-import org.http4s.dsl.Http4sDsl
+
+import cats.syntax.semigroupk._
+import io.circe.generic.auto._
 import sttp.tapir.DecodeResult.Error
 import sttp.tapir._
 import sttp.tapir.json.circe._
+import sttp.tapir.server.ServerDefaults.StatusCodes
 import sttp.tapir.server.http4s._
+import sttp.tapir.server.{ DecodeFailureContext, ServerDefaults }
 import sttp.tapir.server.{ DecodeFailureHandling }
+
 import zio.interop.catz._
 import zio.{ RIO, ZIO }
-import userRepository._
-import sttp.tapir.server.{ DecodeFailureContext, ServerDefaults }
-import sttp.tapir.server.ServerDefaults.StatusCodes
+import org.http4s.dsl.Http4sDsl
 
 class UserRoute[R <: UserRepository] extends Http4sDsl[RIO[R, *]] {
   private implicit val customServerOptions: Http4sServerOptions[RIO[R, *]] = Http4sServerOptions
