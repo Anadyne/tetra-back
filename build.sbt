@@ -35,10 +35,16 @@ lazy val tapirDeps = libraryDependencies ++= Seq(
 )
 
 lazy val cirDeps = libraryDependencies ++= Seq(
-  "is.cir" %% "ciris"            % Version.ciris,
-  "is.cir" %% "ciris-refined"    % Version.ciris,
-  "is.cir" %% "ciris-enumeratum" % Version.ciris,
-  "is.cir" %% "ciris-squants"    % Version.ciris
+  // "is.cir" %% "ciris"            % Version.ciris,
+  // "is.cir" %% "ciris-refined"    % Version.ciris,
+  // "is.cir" %% "ciris-enumeratum" % Version.ciris,
+  // "is.cir" %% "ciris-squants"    % Version.ciris
+  "is.cir" %% "ciris-cats"        % Version.ciris,
+  "is.cir" %% "ciris-cats-effect" % Version.ciris,
+  "is.cir" %% "ciris-core"        % Version.ciris,
+  "is.cir" %% "ciris-enumeratum"  % Version.ciris,
+  "is.cir" %% "ciris-generic"     % Version.ciris,
+  "is.cir" %% "ciris-refined"     % Version.ciris
 )
 
 lazy val commonDeps = libraryDependencies ++= Seq(

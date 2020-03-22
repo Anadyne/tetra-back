@@ -19,12 +19,13 @@ import zio.interop.catz._
 import zio.{ RIO, ZIO }
 import userRepository._
 import sttp.tapir.server.ServerDefaults.StatusCodes
+import org.http4s.blaze.http.HttpRequest
 
 class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
   private implicit val customServerOptions: Http4sServerOptions[RIO[R, *]] = Http4sServerOptions
     .default[RIO[R, *]]
     .copy(
-      decodeFailureHandler = (request, input, failure) => {
+      decodeFailureHandler = (request: HttpRequest, input: Int, failure: String) => {
         failure match {
           case Error(_, error) =>
             DecodeFailureHandling.response(jsonBody[BadRequestResponse])(BadRequestResponse(error.toString))
