@@ -13,6 +13,8 @@ import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware.Logger
 import sttp.tapir.docs.openapi._
 import sttp.tapir.openapi.circe.yaml._
+// import org.fsf.tetra.module.logger.logger.{ Logger => AppLogger }
+
 import sttp.tapir.swagger.http4s.SwaggerHttp4s
 import zio.{ RIO, ZEnv, ZIO }
 import zio.clock.Clock
@@ -35,7 +37,7 @@ object Main extends App {
 
   val env = ZEnv.live ++ UserRepository.live
 
-  override def run(args: List[String]): ZIO[ZEnv, Nothing, Int] = {
+  def run(args: List[String]) = {
     val res = for {
       cfg     <- ZIO.fromTry(Try(Application.getConfig))
       prog    = runHttp(finalHttpApp, cfg)
