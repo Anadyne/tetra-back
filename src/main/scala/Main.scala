@@ -6,7 +6,7 @@ import scala.util.Try
 import cats.effect.ExitCode
 import org.fsf.tetra.model.config.Application
 import org.fsf.tetra.module.db.{ LiveUserRepository, UserRepository }
-import org.fsf.tetra.module.logger.{ LiveLogger, Logger => MyLogger }
+import org.fsf.tetra.module.logger.{ Logger => MyLogger }
 import org.fsf.tetra.route.UserRoute
 import com.typesafe.config.{ Config, ConfigFactory }
 import eu.timepit.refined.auto._
@@ -14,22 +14,24 @@ import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware.Logger
-import sttp.tapir.docs.openapi._
-import sttp.tapir.openapi.circe.yaml._
-import sttp.tapir.swagger.http4s.SwaggerHttp4s
+import tapir.docs.openapi._
+import tapir.openapi.circe.yaml._
+import tapir.swagger.http4s.SwaggerHttp4s
 import zio._
 import zio.clock.Clock
 import zio.console.putStrLn
 import zio.interop.catz._
 
 object Main extends App {
-  type AppEnvironment = Clock with UserRepository with MyLogger
+  type AppEnvironment = Clock with UserRepository
 
   private val userRoute = new UserRoute[AppEnvironment]
   private val yaml      = userRoute.getEndPoints.toOpenAPI("User", "1.0").toYaml
   private val httpApp =
     Router("/" -> userRoute.getRoutes, "/docs" -> new SwaggerHttp4s(yaml).routes[RIO[AppEnvironment, *]]).orNotFound
   private val finalHttpApp = Logger.httpApp[ZIO[AppEnvironment, Throwable, *]](true, true)(httpApp)
+
+  val env = Clock.live
 
   override def run(args: List[String]): ZIO[ZEnv, Nothing, Int] = {
     val result = for {
@@ -43,7 +45,7 @@ object Main extends App {
           .drain
       }
       program <- server.provideSome[ZEnv] { base =>
-                  new Clock with LiveUserRepository with LiveLogger {
+                  new Clock.Service.live with LiveUserRepository with LiveLogger {
                     val clock: Clock.Service[Any] = base.clock
                     val config: Config = ConfigFactory.parseMap(
                       Map(
