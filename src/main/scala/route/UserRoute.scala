@@ -14,10 +14,11 @@ import sttp.tapir.DecodeResult.Error
 import sttp.tapir._
 import sttp.tapir.json.circe._
 import sttp.tapir.server.http4s._
-import sttp.tapir.server.{ DecodeFailureHandling, ServerDefaults }
+import sttp.tapir.server.{ DecodeFailureHandling }
 import zio.interop.catz._
 import zio.{ RIO, ZIO }
 import userRepository._
+import sttp.tapir.server.ServerDefaults.StatusCodes
 
 class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
   private implicit val customServerOptions: Http4sServerOptions[RIO[R, *]] = Http4sServerOptions
@@ -36,8 +37,8 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
     .in("user" / path[Long]("user id"))
     .errorOut(
       oneOf(
-        statusMapping(StatusCodes.InternalServerError, jsonBody[InternalServerErrorResponse]),
-        statusMapping(StatusCodes.NotFound, jsonBody[NotFoundResponse])
+        statusMapping(StatusCodes.error, jsonBody[InternalServerErrorResponse]),
+        statusMapping(StatusCodes.error, jsonBody[NotFoundResponse])
       )
     )
     .out(jsonBody[User])
@@ -47,17 +48,17 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
     .in(jsonBody[User])
     .errorOut(
       oneOf[ErrorResponse](
-        statusMapping(StatusCodes.InternalServerError, jsonBody[InternalServerErrorResponse])
+        statusMapping(StatusCodes.error, jsonBody[InternalServerErrorResponse])
       )
     )
-    .out(statusCode(StatusCodes.Created))
+    .out(statusCode(StatusCodes.success))
 
   private val deleteUserEndPoint = endpoint.delete
     .in("user" / path[Long]("user id"))
     .errorOut(
       oneOf(
-        statusMapping(StatusCodes.InternalServerError, jsonBody[InternalServerErrorResponse]),
-        statusMapping(StatusCodes.NotFound, jsonBody[NotFoundResponse])
+        statusMapping(StatusCodes.error, jsonBody[InternalServerErrorResponse]),
+        statusMapping(StatusCodes.error, jsonBody[NotFoundResponse])
       )
     )
     .out(emptyOutput)

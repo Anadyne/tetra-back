@@ -23,11 +23,10 @@ object userRepository {
 
     val any: ZLayer[UserRepository, Nothing, UserRepository] = ZLayer.requires[UserRepository]
 
-    val live: ZLayer[UserRepository, Nothing, UserRepository] = ZLayer.succeed {
+    val live: ZLayer[UserRepository with Config, Nothing, UserRepository] = ZLayer.fromFunction { cfg: Config =>
       new Service {
-        val config: Config = ???
 
-        lazy val ctx: H2JdbcContext[SnakeCase.type] = new H2JdbcContext(SnakeCase, config)
+        lazy val ctx: H2JdbcContext[SnakeCase.type] = new H2JdbcContext(SnakeCase, cfg)
         import ctx._
 
         def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]] =
