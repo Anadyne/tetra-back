@@ -1,5 +1,4 @@
 package org.fsf.tetra
-
 import io.circe.{ Decoder, Encoder }
 
 import org.fsf.tetra.implicits.Circe._
@@ -12,6 +11,7 @@ import org.http4s.implicits._
 import org.http4s.{ Method, Request, Status }
 
 import HTTPSpec._
+import cats.effect.IO
 
 import zio._
 import zio.console._
@@ -19,7 +19,7 @@ import zio.test.Assertion._
 import zio.test._
 import zio.test.environment._
 
-object HelloWorldSpec extends DefaultRunnableSpec {
+object TetraSpec extends DefaultRunnableSpec {
   type Env = UserRepository
 
   def spec = suite("spec")(
@@ -27,16 +27,19 @@ object HelloWorldSpec extends DefaultRunnableSpec {
 
       implicit val e: EntityEncoder[zio.Task, User] =
         jsonEncoderOf[zio.Task, User]
+      // implicit val e: EntityEncoder[IO, User] =
+      //   jsonEncoderOf[IO, User]
 
-      val user = User(0, "guy", 12)
-      request(Method.POST, "/user").withEntity(user)
+      val payload = request(Method.POST, "/user").withEntity(user)
 
-      // assertM(check(app.run(payload)))(Status.Created)
-      assertM(ZIO.succeed(true))(isTrue)
+      assertM(check(app.run(payload)))(Status.Created)
+      // assertM(ZIO.succeed(true))(isTrue)
     }
   )
 
+  val user = User(0, "guy", 12)
+
   private val userRoute: UserRoute[Env] = new UserRoute[Env]
 
-  userRoute.getRoutes
+  private val app = userRoute.getRoutes
 }

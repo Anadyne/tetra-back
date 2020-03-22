@@ -7,13 +7,11 @@ import org.fsf.tetra.model.{ DBFailure, ExpectedFailure }
 
 import com.typesafe.config.Config
 
-import zio.{ Has, Ref, ZIO, ZLayer }
+import zio.{ Has, ZIO, ZLayer }
 
 object userRepository {
 
   type UserRepository = Has[UserRepository.Service]
-  type MockR          = Ref[Map[Long, User]]
-  type MockHas        = Has[Ref[Map[Long, User]]]
 
   object UserRepository {
 

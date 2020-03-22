@@ -4,9 +4,10 @@ import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.{ ExpectedFailure }
 import org.fsf.tetra.module.db.userRepository._
 
-import zio.{ ZIO, ZLayer }
+import zio.{ Ref, ZIO, ZLayer }
 
 object mockRepository {
+  type MockR = Ref[Map[Long, User]]
 
   val live: ZLayer[MockR, Nothing, UserRepository] = ZLayer.fromFunction { ref: MockR =>
     new UserRepository.Service {

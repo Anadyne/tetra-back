@@ -8,10 +8,10 @@ import org.http4s.{ EntityDecoder, EntityEncoder }
 import cats.effect.Sync
 
 object Circe {
-  implicit def circeJsonDecoder[F[_]: Sync, A](implicit decoder: Decoder[A]): EntityDecoder[F, A] =
+  implicit def circeJsonDecoder[F[+_]: Sync, A](implicit decoder: Decoder[A]): EntityDecoder[F, A] =
     jsonOf[F, A]
 
-  implicit def circeJsonEncoder[F[_]: Sync, A](implicit encoder: Encoder[A]): EntityEncoder[F, A] =
+  implicit def circeJsonEncoder[F[+_]: Sync, A](implicit encoder: Encoder[A]): EntityEncoder[F, A] =
     jsonEncoderOf[F, A]
 
 }
