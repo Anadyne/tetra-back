@@ -1,21 +1,85 @@
 package org.fsf.tetra.module.db
 
-import org.fsf.tetra.model.ExpectedFailure
+import zio.{ Has, Ref, ZIO, ZLayer }
 import org.fsf.tetra.model.database.User
-import zio.ZIO
+import org.fsf.tetra.model.{ DBFailure, ExpectedFailure }
 
-trait UserRepository {
-  val repository: UserRepository.Service
-}
+import com.typesafe.config.Config
+import io.getquill.{ H2JdbcContext, SnakeCase }
 
-object UserRepository {
+object userRepository {
 
-  trait Service {
+  type UserRepository = Has[UserRepository.Service]
+  type MockData       = Ref[Map[Long, User]]
 
-    def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]]
+  object UserRepository {
 
-    def create(user: User): ZIO[Any, ExpectedFailure, Unit]
+    trait Service {
+      def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]]
+      def create(user: User): ZIO[Any, ExpectedFailure, Unit]
+      def delete(id: Long): ZIO[Any, ExpectedFailure, Unit]
+    }
 
-    def delete(id: Long): ZIO[Any, ExpectedFailure, Unit]
+    val any: ZLayer[UserRepository, Nothing, UserRepository] = ZLayer.requires[UserRepository]
+
+    val inMemory: ZLayer[Ref[Map[Long, User]], Nothing, UserRepository] = ZLayer.fromFunction {
+      ref: Ref[Map[Long, User]] =>
+        new Service {
+          def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]] =
+            for {
+              user <- ref.get.map(_.get(id))
+              out <- user match {
+                      case Some(s) => ZIO.some(s)
+                      case None    => ZIO.none
+                    }
+            } yield out
+
+          def create(user: User): ZIO[Any, ExpectedFailure, Unit] = ref.update(map => map.+(user.id -> user)).unit
+
+          def delete(id: Long): ZIO[Any, ExpectedFailure, Unit] = ref.update(map => map.-(id)).unit
+        }
+    }
+
+    val live: ZLayer[UserRepository, Nothing, UserRepository] = ZLayer.succeed {
+      new Service {
+        val config: Config = ???
+
+        lazy val ctx: H2JdbcContext[SnakeCase.type] = new H2JdbcContext(SnakeCase, config)
+        import ctx._
+
+        def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]] =
+          for {
+            list <- ZIO.effect(ctx.run(query[User].filter(_.id == lift(id)))).mapError(t => DBFailure(t))
+            user <- list match {
+                     case Nil    => ZIO.none
+                     case s :: _ => ZIO.some(s)
+                   }
+          } yield {
+            user
+          }
+
+        def create(user: User): ZIO[Any, ExpectedFailure, Unit] =
+          zio.IO
+            .effect(ctx.run(query[User].insert(lift(user))))
+            .mapError(t => DBFailure(t))
+            .unit
+
+        def delete(id: Long): ZIO[Any, ExpectedFailure, Unit] =
+          zio.IO
+            .effect(ctx.run(query[User].filter(_.id == lift(id)).delete))
+            .mapError(t => DBFailure(t))
+            .unit
+      }
+    }
+
+    def get(id: Long): ZIO[UserRepository, ExpectedFailure, Option[User]] =
+      ZIO.accessM(_.get.get(id))
+
+    def create(user: User): ZIO[UserRepository, ExpectedFailure, Unit] =
+      ZIO.accessM(_.get.create(user))
+
+    def delete(id: Long): ZIO[UserRepository, ExpectedFailure, Unit] =
+      ZIO.accessM(_.get.delete(id))
+
   }
 }

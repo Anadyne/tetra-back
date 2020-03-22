@@ -18,6 +18,7 @@ import tapir.server.{ DecodeFailureHandling, ServerDefaults }
 import zio.interop.catz._
 import zio.{ RIO, ZIO }
 import tapir.model.StatusCodes
+import userRepository._
 
 class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
   private implicit val customServerOptions: Http4sServerOptions[RIO[R, *]] = Http4sServerOptions
