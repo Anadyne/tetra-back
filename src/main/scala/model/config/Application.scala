@@ -2,6 +2,9 @@ package org.fsf.tetra.model.config
 
 import java.net.InetAddress
 
+import scala.jdk.CollectionConverters._
+import com.typesafe.config.{ ConfigFactory }
+
 import ciris.api.Id
 import ciris.refined._
 import ciris.{ env, loadConfig, ConfigResult }
@@ -28,4 +31,13 @@ object Application {
   }
 
   val getConfig: Application = config.orThrow()
+
+  def appConfig(cfg: Application) = ConfigFactory.parseMap {
+    Map(
+      "dataSourceClassName" -> cfg.database.className.value,
+      "dataSource.url"      -> cfg.database.url.value,
+      "dataSource.user"     -> cfg.database.user.value,
+      "dataSource.password" -> cfg.database.password.value
+    ).asJava
+  }
 }
