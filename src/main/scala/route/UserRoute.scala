@@ -18,18 +18,18 @@ import sttp.tapir.server.{ DecodeFailureHandling }
 import zio.interop.catz._
 import zio.{ RIO, ZIO }
 import userRepository._
+import sttp.tapir.server.{ DecodeFailureContext, ServerDefaults }
 import sttp.tapir.server.ServerDefaults.StatusCodes
-import org.http4s.blaze.http.HttpRequest
 
 class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
   private implicit val customServerOptions: Http4sServerOptions[RIO[R, *]] = Http4sServerOptions
     .default[RIO[R, *]]
     .copy(
-      decodeFailureHandler = (request: HttpRequest, input: Int, failure: String) => {
-        failure match {
+      decodeFailureHandler = (ctx: DecodeFailureContext) => {
+        ctx.failure match {
           case Error(_, error) =>
             DecodeFailureHandling.response(jsonBody[BadRequestResponse])(BadRequestResponse(error.toString))
-          case _ => ServerDefaults.decodeFailureHandler(request, input, failure)
+          case _ => ServerDefaults.decodeFailureHandler(ctx)
         }
       }
     )
@@ -65,9 +65,7 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
     .out(emptyOutput)
 
   val getRoutes: HttpRoutes[RIO[R, *]] = {
-    getUserEndPoint.toRoutes { userId =>
-      handleError(getUser(userId))
-    } <+> createUserEndPoint.toRoutes(user => handleError(create(user))) <+> deleteUserEndPoint.toRoutes { id =>
+    getUserEndPoint.toRoutes(userId => handleError(getUser(userId))) /* <+> createUserEndPoint.toRoutes(user => handleError(create(user))) <+>  deleteUserEndPoint.toRoutes { id =>
       val result = for {
         _    <- debug(s"id: $id")
         user <- getUser(id)
@@ -75,7 +73,7 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
       } yield {}
 
       handleError(result)
-    }
+    } */
   }
 
   val getEndPoints = {

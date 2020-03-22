@@ -16,7 +16,7 @@ object logger {
     }
     val any: ZLayer[Logger, Nothing, Logger] = ZLayer.requires[Logger]
 
-    val live: ZLayer[Console, Nothing, Unit] = ZLayer.fromFunction { console: Console =>
+    val live = ZLayer.fromFunction { console: Console =>
       new Service {
 
         def error(message: => String): ZIO[Any, Nothing, Unit] = console.get.putStr(message)
