@@ -10,7 +10,8 @@ import io.getquill.{ H2JdbcContext, SnakeCase }
 object userRepository {
 
   type UserRepository = Has[UserRepository.Service]
-  type MockData       = Ref[Map[Long, User]]
+  type MockR          = Ref[Map[Long, User]]
+  type MockHas        = Has[Ref[Map[Long, User]]]
 
   object UserRepository {
 
@@ -21,24 +22,6 @@ object userRepository {
     }
 
     val any: ZLayer[UserRepository, Nothing, UserRepository] = ZLayer.requires[UserRepository]
-
-    val inMemory: ZLayer[Ref[Map[Long, User]], Nothing, UserRepository] = ZLayer.fromFunction {
-      ref: Ref[Map[Long, User]] =>
-        new Service {
-          def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]] =
-            for {
-              user <- ref.get.map(_.get(id))
-              out <- user match {
-                      case Some(s) => ZIO.some(s)
-                      case None    => ZIO.none
-                    }
-            } yield out
-
-          def create(user: User): ZIO[Any, ExpectedFailure, Unit] = ref.update(map => map.+(user.id -> user)).unit
-
-          def delete(id: Long): ZIO[Any, ExpectedFailure, Unit] = ref.update(map => map.-(id)).unit
-        }
-    }
 
     val live: ZLayer[UserRepository, Nothing, UserRepository] = ZLayer.succeed {
       new Service {

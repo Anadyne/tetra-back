@@ -10,14 +10,13 @@ import org.fsf.tetra.module.logger.{ Logger, _ }
 import io.circe.generic.auto._
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
-import tapir.DecodeResult.Error
-import tapir._
-import tapir.json.circe._
-import tapir.server.http4s._
-import tapir.server.{ DecodeFailureHandling, ServerDefaults }
+import sttp.tapir.DecodeResult.Error
+import sttp.tapir._
+import sttp.tapir.json.circe._
+import sttp.tapir.server.http4s._
+import sttp.tapir.server.{ DecodeFailureHandling, ServerDefaults }
 import zio.interop.catz._
 import zio.{ RIO, ZIO }
-import tapir.model.StatusCodes
 import userRepository._
 
 class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {

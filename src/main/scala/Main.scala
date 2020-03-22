@@ -14,9 +14,9 @@ import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware.Logger
-import tapir.docs.openapi._
-import tapir.openapi.circe.yaml._
-import tapir.swagger.http4s.SwaggerHttp4s
+import sttp.tapir.docs.openapi._
+import sttp.tapir.openapi.circe.yaml._
+import sttp.tapir.swagger.http4s.SwaggerHttp4s
 import zio._
 import zio.clock.Clock
 import zio.console.putStrLn
@@ -31,7 +31,7 @@ object Main extends App {
     Router("/" -> userRoute.getRoutes, "/docs" -> new SwaggerHttp4s(yaml).routes[RIO[AppEnvironment, *]]).orNotFound
   private val finalHttpApp = Logger.httpApp[ZIO[AppEnvironment, Throwable, *]](true, true)(httpApp)
 
-  val env = ZEnv.live ++ UserRepository.live
+  val env = Clock.live ++ UserRepository.live
 
   override def run(args: List[String]): ZIO[ZEnv, Nothing, Int] = {
     val result = for {

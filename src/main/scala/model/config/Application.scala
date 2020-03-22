@@ -16,13 +16,13 @@ final case class Application(
 
 object Application {
 
-  private val config: ConfigResult[Id, Application] = loadConfig(
-    env[InetAddress]("server.host"),
-    env[UserPortNumber]("server.port"),
-    env[Refined[String, NonEmpty]]("dataSource.className"),
-    env[Refined[String, NonEmpty]]("dataSource.url"),
-    env[Refined[String, NonEmpty]]("dataSource.user"),
-    env[Refined[String, NonEmpty]]("dataSource.password")
+  private val config = load(
+    env("server.host"),
+    env("server.port"),
+    env("dataSource.className"),
+    env("dataSource.url"),
+    env("dataSource.user"),
+    env("dataSource.password")
   ) { (url, port, className, dataSourceUrl, user, password) =>
     Application(Server(url, port), Database(className, dataSourceUrl, user, password))
   }
