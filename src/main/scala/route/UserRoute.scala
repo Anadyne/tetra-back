@@ -1,5 +1,7 @@
 package org.fsf.tetra.route
 
+import io.circe.generic.auto._
+
 import org.fsf.tetra.implicits.Throwable._
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.response.{ BadRequestResponse, ErrorResponse, InternalServerErrorResponse, NotFoundResponse }
@@ -9,7 +11,6 @@ import org.http4s._
 import org.http4s.dsl.Http4sDsl
 
 import cats.syntax.semigroupk._
-import io.circe.generic.auto._
 import sttp.tapir.DecodeResult.Error
 import sttp.tapir._
 import sttp.tapir.json.circe._

@@ -58,7 +58,8 @@ lazy val root = (project in file("."))
     http4sDeps,
     tapirDeps,
     commonDeps,
-    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
+    testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
+    addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
   )
 
 // Aliases
