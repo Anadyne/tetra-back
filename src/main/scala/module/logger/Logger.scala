@@ -1,31 +1,98 @@
 package org.fsf.tetra.module.logger
 
-import zio.ZIO
-trait Logger {
-  val logger: Logger.Service
-}
+import cats.Show
+import zio.{ Has, ZIO }
 
-object Logger {
+object logger {
+  type Logger = Has[Logger.Service[Any]]
 
-  trait Service {
-    def error(message: => String): ZIO[Any, Nothing, Unit]
+  object Logger {
+    trait Service[R] extends Serializable {
+      def trace[A: Show](
+        a: => A
+      )(
+        implicit
+        line: sourcecode.Line,
+        file: sourcecode.File
+      ): ZIO[R, Nothing, Unit]
 
-    def warn(message: => String): ZIO[Any, Nothing, Unit]
+      def debug[A: Show](
+        a: => A
+      )(
+        implicit
+        line: sourcecode.Line,
+        file: sourcecode.File
+      ): ZIO[R, Nothing, Unit]
 
-    def info(message: => String): ZIO[Any, Nothing, Unit]
+      def info[A: Show](
+        a: => A
+      )(
+        implicit
+        line: sourcecode.Line,
+        file: sourcecode.File
+      ): ZIO[R, Nothing, Unit]
 
-    def debug(message: => String): ZIO[Any, Nothing, Unit]
+      def warn[A: Show](
+        a: => A
+      )(
+        implicit
+        line: sourcecode.Line,
+        file: sourcecode.File
+      ): ZIO[R, Nothing, Unit]
 
-    def trace(message: => String): ZIO[Any, Nothing, Unit]
+      def error[A: Show](
+        a: => A
+      )(
+        implicit
+        line: sourcecode.Line,
+        file: sourcecode.File
+      ): ZIO[R, Nothing, Unit]
 
-    def error(t: Throwable)(message: => String): ZIO[Any, Nothing, Unit]
-
-    def warn(t: Throwable)(message: => String): ZIO[Any, Nothing, Unit]
-
-    def info(t: Throwable)(message: => String): ZIO[Any, Nothing, Unit]
-
-    def debug(t: Throwable)(message: => String): ZIO[Any, Nothing, Unit]
-
-    def trace(t: Throwable)(message: => String): ZIO[Any, Nothing, Unit]
+    }
   }
+
+  trait UnsafeLogger {
+    def withContext(ctx: String): UnsafeLogger
+
+    def trace[A: Show](
+      a: => A
+    )(
+      implicit
+      line: sourcecode.Line,
+      file: sourcecode.File
+    ): Unit
+
+    def debug[A: Show](
+      a: => A
+    )(
+      implicit
+      line: sourcecode.Line,
+      file: sourcecode.File
+    ): Unit
+
+    def info[A: Show](
+      a: => A
+    )(
+      implicit
+      line: sourcecode.Line,
+      file: sourcecode.File
+    ): Unit
+
+    def warn[A: Show](
+      a: => A
+    )(
+      implicit
+      line: sourcecode.Line,
+      file: sourcecode.File
+    ): Unit
+
+    def error[A: Show](
+      a: => A
+    )(
+      implicit
+      line: sourcecode.Line,
+      file: sourcecode.File
+    ): Unit
+  }
+
 }
