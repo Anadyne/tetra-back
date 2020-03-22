@@ -6,7 +6,7 @@ import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.response.{ BadRequestResponse, ErrorResponse, InternalServerErrorResponse, NotFoundResponse }
 import org.fsf.tetra.model.{ DBFailure, ExpectedFailure, NotFoundFailure }
 import org.fsf.tetra.module.db._
-import org.fsf.tetra.module.logger.{ Logger, _ }
+import org.fsf.tetra.module.logger.logger.{ Logger => AppLogger }
 import io.circe.generic.auto._
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
@@ -21,7 +21,7 @@ import userRepository._
 import sttp.tapir.server.{ DecodeFailureContext, ServerDefaults }
 import sttp.tapir.server.ServerDefaults.StatusCodes
 
-class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
+class UserRoute[R <: UserRepository with AppLogger] extends Http4sDsl[RIO[R, *]] {
   private implicit val customServerOptions: Http4sServerOptions[RIO[R, *]] = Http4sServerOptions
     .default[RIO[R, *]]
     .copy(
@@ -84,7 +84,7 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
 
   private def getUser(userId: Long): ZIO[R, ExpectedFailure, User] =
     for {
-      _    <- debug(s"id: $userId")
+      // _    <- debug(s"id: $userId")
       user <- UserRepository.get(userId)
       u <- user match {
             case None    => ZIO.fail(NotFoundFailure(s"Can not find a user by $userId"))
