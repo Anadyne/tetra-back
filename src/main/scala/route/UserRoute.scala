@@ -10,6 +10,8 @@ import org.fsf.tetra.module.db.userRepository.UserRepository
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
 
+import org.fsf.tetra.module.logger.logger.{ Logger => AppLogger }
+
 import cats.syntax.semigroupk._
 import sttp.tapir.DecodeResult.Error
 import sttp.tapir._
@@ -22,7 +24,7 @@ import sttp.tapir.server.{ DecodeFailureHandling }
 import zio.interop.catz._
 import zio.{ RIO, ZIO }
 
-class UserRoute[R <: UserRepository] extends Http4sDsl[RIO[R, *]] {
+class UserRoute[R <: UserRepository with AppLogger] extends Http4sDsl[RIO[R, *]] {
   private implicit val customServerOptions: Http4sServerOptions[RIO[R, *]] = Http4sServerOptions
     .default[RIO[R, *]]
     .copy(

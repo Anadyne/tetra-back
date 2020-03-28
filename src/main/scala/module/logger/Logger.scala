@@ -1,98 +1,31 @@
-// package org.fsf.tetra.module.logger
+package org.fsf.tetra.module.logger
 
-// import cats.Show
-// import zio.{ Has, ZIO }
+import zio.{ Has, ZIO, ZLayer }
+import zio.console.Console
 
-// object logger {
-//   type Logger = Has[Logger.Service[Any]]
+object logger {
+  type Logger = Has[Logger.Service]
 
-//   object Logger {
-//     trait Service[R] extends Serializable {
-//       def trace[A: Show](
-//         a: => A
-//       )(
-//         implicit
-//         line: sourcecode.Line,
-//         file: sourcecode.File
-//       ): ZIO[R, Nothing, Unit]
+  object Logger {
+    trait Service {
+      def error(message: => String): ZIO[Any, Nothing, Unit]
+      def warn(message: => String): ZIO[Any, Nothing, Unit]
+      def info(message: => String): ZIO[Any, Nothing, Unit]
+      def debug(message: => String): ZIO[Any, Nothing, Unit]
+      def trace(message: => String): ZIO[Any, Nothing, Unit]
+    }
+    val any: ZLayer[Logger, Nothing, Logger] = ZLayer.requires[Logger]
 
-//       def debug[A: Show](
-//         a: => A
-//       )(
-//         implicit
-//         line: sourcecode.Line,
-//         file: sourcecode.File
-//       ): ZIO[R, Nothing, Unit]
+    val live = ZLayer.fromFunction { console: Console =>
+      new Service {
 
-//       def info[A: Show](
-//         a: => A
-//       )(
-//         implicit
-//         line: sourcecode.Line,
-//         file: sourcecode.File
-//       ): ZIO[R, Nothing, Unit]
+        def error(message: => String): ZIO[Any, Nothing, Unit] = console.get.putStr(message)
+        def warn(message: => String): ZIO[Any, Nothing, Unit]  = console.get.putStr(message)
+        def info(message: => String): ZIO[Any, Nothing, Unit]  = console.get.putStr(message)
+        def debug(message: => String): ZIO[Any, Nothing, Unit] = console.get.putStr(message)
+        def trace(message: => String): ZIO[Any, Nothing, Unit] = console.get.putStr(message)
 
-//       def warn[A: Show](
-//         a: => A
-//       )(
-//         implicit
-//         line: sourcecode.Line,
-//         file: sourcecode.File
-//       ): ZIO[R, Nothing, Unit]
-
-//       def error[A: Show](
-//         a: => A
-//       )(
-//         implicit
-//         line: sourcecode.Line,
-//         file: sourcecode.File
-//       ): ZIO[R, Nothing, Unit]
-
-//     }
-//   }
-
-//   trait UnsafeLogger {
-//     def withContext(ctx: String): UnsafeLogger
-
-//     def trace[A: Show](
-//       a: => A
-//     )(
-//       implicit
-//       line: sourcecode.Line,
-//       file: sourcecode.File
-//     ): Unit
-
-//     def debug[A: Show](
-//       a: => A
-//     )(
-//       implicit
-//       line: sourcecode.Line,
-//       file: sourcecode.File
-//     ): Unit
-
-//     def info[A: Show](
-//       a: => A
-//     )(
-//       implicit
-//       line: sourcecode.Line,
-//       file: sourcecode.File
-//     ): Unit
-
-//     def warn[A: Show](
-//       a: => A
-//     )(
-//       implicit
-//       line: sourcecode.Line,
-//       file: sourcecode.File
-//     ): Unit
-
-//     def error[A: Show](
-//       a: => A
-//     )(
-//       implicit
-//       line: sourcecode.Line,
-//       file: sourcecode.File
-//     ): Unit
-//   }
-
-// }
+      }
+    }
+  }
+}
