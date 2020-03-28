@@ -2,6 +2,7 @@ package org.fsf.tetra
 
 import org.fsf.tetra.model.config.config.{ loadConfig, Application }
 import org.fsf.tetra.module.db.userRepository._
+import org.fsf.tetra.module.logger.logger.{ Logger => AppLogger }
 import org.fsf.tetra.route.UserRoute
 import org.http4s.HttpApp
 import org.http4s.implicits._
@@ -22,7 +23,7 @@ import zio.{ RIO, ZEnv, ZIO }
 
 object Main extends App {
 
-  type AppEnvironment = Clock with UserRepository
+  type AppEnvironment = Clock with UserRepository with AppLogger
   type AppTask[A]     = RIO[AppEnvironment, A]
 
   private val userRoute = new UserRoute[AppEnvironment]
@@ -31,7 +32,7 @@ object Main extends App {
     Router("/" -> userRoute.getRoutes, "/docs" -> new SwaggerHttp4s(yaml).routes[AppTask]).orNotFound
   private val finalHttpApp = Logger.httpApp[AppTask](true, true)(httpApp)
 
-  val env = ZEnv.live ++ UserRepository.live
+  val env = ZEnv.live ++ UserRepository.live ++ AppLogger.live
 
   def run() = {
     val res = for {
