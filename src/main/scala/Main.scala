@@ -15,16 +15,14 @@ import cats.effect.ExitCode
 import sttp.tapir.docs.openapi._
 import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.swagger.http4s.SwaggerHttp4s
+import types._
 
 import zio.clock.Clock
 import zio.console.putStrLn
 import zio.interop.catz._
-import zio.{ RIO, ZEnv, ZIO }
+import zio.{ ZEnv, ZIO }
 
 object Main extends App {
-
-  type AppEnvironment = Clock with UserRepository with AppLogger
-  type AppTask[A]     = RIO[AppEnvironment, A]
 
   private val userRoute = new UserRoute[AppEnvironment]
   private val yaml      = userRoute.getEndPoints.toOpenAPI("User", "1.0").toYaml
