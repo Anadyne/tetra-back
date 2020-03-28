@@ -7,7 +7,7 @@ import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.response.{ BadRequestResponse, ErrorResponse, InternalServerErrorResponse, NotFoundResponse }
 import org.fsf.tetra.model.{ DBFailure, ExpectedFailure, NotFoundFailure }
 import org.fsf.tetra.module.db.userRepository.UserRepository
-import org.fsf.tetra.module.logger.logger.{ Logger => AppLogger }
+import org.fsf.tetra.module.logger.logger.Logger
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
 
@@ -23,7 +23,7 @@ import sttp.tapir.server.{ DecodeFailureHandling }
 import zio.interop.catz._
 import zio.{ RIO, ZIO }
 
-class UserRoute[R <: UserRepository with AppLogger] extends Http4sDsl[RIO[R, *]] {
+class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
   private implicit val customServerOptions: Http4sServerOptions[RIO[R, *]] = Http4sServerOptions
     .default[RIO[R, *]]
     .copy(
@@ -69,15 +69,15 @@ class UserRoute[R <: UserRepository with AppLogger] extends Http4sDsl[RIO[R, *]]
   val getRoutes: HttpRoutes[RIO[R, *]] = {
     getUserEndPoint.toRoutes(userId => handleError(getUser(userId))) <+> createUserEndPoint.toRoutes(user =>
       handleError(UserRepository.create(user))
-    ) /* <+> deleteUserEndPoint.toRoutes { id =>
+    ) <+> deleteUserEndPoint.toRoutes { id =>
       val result = for {
-        _    <- debug(s"id: $id")
-        user <- getUser(id)
-        _    <- delete(user.id)
+        _ <- Logger.debug(s"id: $id")
+        // user <- UserRepository.getUser(id)
+        _ <- UserRepository.delete(0)
       } yield {}
 
       handleError(result)
-    } */
+    }
   }
 
   val getEndPoints = {
@@ -86,7 +86,7 @@ class UserRoute[R <: UserRepository with AppLogger] extends Http4sDsl[RIO[R, *]]
 
   private def getUser(userId: Long): ZIO[R, ExpectedFailure, User] =
     for {
-      // _    <- debug(s"id: $userId")
+      _    <- Logger.debug(s"id: $userId")
       user <- UserRepository.get(userId)
       u <- user match {
             case None    => ZIO.fail(NotFoundFailure(s"Can not find a user by $userId"))

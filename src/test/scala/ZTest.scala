@@ -13,7 +13,7 @@ import org.http4s.EntityEncoder
 import org.http4s.Method
 import org.http4s.Request
 import org.http4s.implicits._
-import org.http4s.implicits._
+import org.http4s.circe._
 
 import HTTPSpec._
 
@@ -34,11 +34,13 @@ object helper {
 object ZSpec extends DefaultRunnableSpec {
   def spec = suite("ZSpec")(
     testM("blah") {
+      type UTask = zio.Task[User]
       // implicit val e: EntityEncoder[zio.Task, User] =
       //   jsonEncoderOf[zio.Task, User]
       // implicit val e: EntityEncoder[IO, User] =
       //   jsonEncoderOf[IO, User]
       // val payload = request(Method.POST, "/user").withEntity(user)
+      val req = Request(Method.GET, uri"""/blah/blah""")
 
       assertM(ZIO.succeed(true))(isTrue)
     }

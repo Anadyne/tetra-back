@@ -1,31 +1,33 @@
 package org.fsf.tetra.module.logger
 
 import zio.console.Console
-import zio.{ Has, ZIO, ZLayer }
+import zio.{ Has, UIO, ZIO, ZLayer }
 
 object logger {
   type Logger = Has[Logger.Service]
 
   object Logger {
     trait Service {
-      def error(message: => String): ZIO[Any, Nothing, Unit]
-      def warn(message: => String): ZIO[Any, Nothing, Unit]
-      def info(message: => String): ZIO[Any, Nothing, Unit]
-      def debug(message: => String): ZIO[Any, Nothing, Unit]
-      def trace(message: => String): ZIO[Any, Nothing, Unit]
+      def error(msg: => String): UIO[Unit]
+      def warn(msg: => String): UIO[Unit]
+      def info(msg: => String): UIO[Unit]
+      def debug(msg: => String): UIO[Unit]
+      def trace(msg: => String): UIO[Unit]
     }
     val any: ZLayer[Logger, Nothing, Logger] = ZLayer.requires[Logger]
 
     val live = ZLayer.fromFunction { console: Console =>
       new Service {
 
-        def error(message: => String): ZIO[Any, Nothing, Unit] = console.get.putStr(message)
-        def warn(message: => String): ZIO[Any, Nothing, Unit]  = console.get.putStr(message)
-        def info(message: => String): ZIO[Any, Nothing, Unit]  = console.get.putStr(message)
-        def debug(message: => String): ZIO[Any, Nothing, Unit] = console.get.putStr(message)
-        def trace(message: => String): ZIO[Any, Nothing, Unit] = console.get.putStr(message)
+        def error(msg: => String): UIO[Unit] = console.get.putStr(msg)
+        def warn(msg: => String): UIO[Unit]  = console.get.putStr(msg)
+        def info(msg: => String): UIO[Unit]  = console.get.putStr(msg)
+        def debug(msg: => String): UIO[Unit] = console.get.putStr(msg)
+        def trace(msg: => String): UIO[Unit] = console.get.putStr(msg)
 
       }
     }
+    def debug(msg: => String): ZIO[Logger, Nothing, Unit] = ZIO.accessM(_.get.debug(msg))
   }
+
 }
