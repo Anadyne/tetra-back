@@ -1,6 +1,6 @@
 package org.fsf.tetra
 
-import org.fsf.tetra.model.config.config.{ loadConfig, Application }
+import org.fsf.tetra.model.config.config.{ loadConfig, AppConfig }
 import org.fsf.tetra.module.db.userRepository._
 import org.fsf.tetra.module.logger.logger.{ Logger => AppLogger }
 import org.fsf.tetra.route.UserRoute
@@ -20,9 +20,11 @@ import types._
 import zio.clock.Clock
 import zio.console.putStrLn
 import zio.interop.catz._
-import zio.{ ZEnv, ZIO }
+import zio.{ RIO, ZEnv, ZIO }
+import zio.console.Console
+import zio.blocking.Blocking
 
-object Main extends App {
+object Main extends CatsApp {
 
   private val userRoute = new UserRoute[AppEnvironment]
   private val yaml      = userRoute.getEndPoints.toOpenAPI("User", "1.0").toYaml
@@ -32,23 +34,19 @@ object Main extends App {
 
   val env = ZEnv.live ++ UserRepository.live ++ AppLogger.live
 
-  def run() = {
-    val res = for {
-      cfg     <- ZIO.fromEither(loadConfig)
-      prog    = runHttp(finalHttpApp, cfg)
-      program <- prog.provideLayer(env)
-    } yield program
-
-    res.foldM(err => putStrLn(s"Execution failed with: $err").as(1), _ => ZIO.succeed(0))
-  }
-
-  def runHttp[R <: Clock](app: HttpApp[AppTask], cfg: Application) = ZIO.runtime[AppEnvironment].flatMap {
-    implicit rts =>
+  def runHttp[R <: Clock](app: HttpApp[AppTask], cfg: AppConfig): RIO[AppEnvironment, Unit] =
+    ZIO.runtime[AppEnvironment].flatMap { implicit rts =>
       BlazeServerBuilder[AppTask]
         .bindHttp(cfg.server.port, cfg.server.host)
         .withHttpApp(CORS(app))
         .serve
         .compile[AppTask, AppTask, ExitCode]
         .drain
-  }
+    }
+
+  val prog = ZIO.fromEither(loadConfig).flatMap(cfg => runHttp(finalHttpApp, cfg))
+
+  override def run(args: List[String]) =
+    prog.provideLayer(env).foldM(err => putStrLn(s"Execution failed with: $err").as(1), _ => ZIO.succeed(0))
+
 }

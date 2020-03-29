@@ -14,10 +14,10 @@ object config {
     pass: String
   )
 
-  final case class Application(
+  final case class AppConfig(
     server: Server,
     database: Database
   )
 
-  def loadConfig = ConfigSource.default.load[Application]
+  def loadConfig = ConfigSource.default.load[AppConfig]
 }
