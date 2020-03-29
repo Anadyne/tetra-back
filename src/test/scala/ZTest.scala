@@ -18,7 +18,7 @@ object ZSpec extends DefaultRunnableSpec {
 
       val req = Request(Method.GET, uri"""/user""")
 
-      val rsp = app.run(???)
+      // val rsp = app.run(req)
 
       assertM(ZIO.succeed(true))(isTrue)
     }
