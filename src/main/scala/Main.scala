@@ -42,7 +42,8 @@ object Main extends CatsApp {
         .drain
     }
 
-  val prog = ZIO.fromEither(loadConfig).flatMap(cfg => runHttp(finalHttpApp, cfg))
+  val prog: ZIO[AppEnvironment, Serializable, Unit] =
+    ZIO.fromEither(loadConfig).flatMap(cfg => runHttp(finalHttpApp, cfg))
 
   override def run(args: List[String]) =
     prog.provideLayer(env).foldM(err => putStrLn(s"Execution failed with: $err").as(1), _ => ZIO.succeed(0))
