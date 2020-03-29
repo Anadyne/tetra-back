@@ -21,8 +21,6 @@ import zio.clock.Clock
 import zio.console.putStrLn
 import zio.interop.catz._
 import zio.{ RIO, ZEnv, ZIO }
-import zio.console.Console
-import zio.blocking.Blocking
 
 object Main extends CatsApp {
 
