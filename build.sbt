@@ -38,16 +38,13 @@ lazy val commonDeps = libraryDependencies ++= Seq(
   "io.circe"              %% "circe-generic"  % Version.circe,
   "io.getquill"           %% "quill-jdbc"     % Version.quill,
   "com.github.pureconfig" %% "pureconfig"     % Version.pureconfig,
-  "com.h2database"        % "h2"              % Version.h2database,
+  "com.h2database"        % "h2"              % Version.h2db,
+  "org.flywaydb"          % "flyway-core"     % Version.flyway,
   "ch.qos.logback"        % "logback-classic" % Version.logback
 )
 
 lazy val root = (project in file("."))
-  .enablePlugins(JavaAppPackaging, DockerSpotifyClientPlugin)
   .settings(
-    packageName in Docker := "tetra",
-    dockerUsername in Docker := Some("tampler"),
-    dockerExposedPorts in Docker := Seq(8080),
     organization := "FSF",
     name := "tetra-back",
     version := "0.0.1",
