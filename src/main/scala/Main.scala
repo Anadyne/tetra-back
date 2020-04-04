@@ -18,7 +18,10 @@ import sttp.tapir.swagger.http4s.SwaggerHttp4s
 import types._
 
 import zio.interop.catz._
-import zio.{ Runtime, ZEnv, ZIO }
+// import zio.{ Runtime, ZEnv, ZIO }
+import zio._
+import zio.console.putStrLn
+import zio.clock.Clock
 
 object Main extends App {
   val rt = Runtime.default
@@ -29,18 +32,24 @@ object Main extends App {
     Router("/" -> userRoute.getRoutes, "/docs" -> new SwaggerHttp4s(yaml).routes[AppTask]).orNotFound
   private val finalHttpApp = Logger.httpApp[AppTask](true, true)(httpApp)
 
-  val env = ZEnv.live ++ UserRepository.live ++ AppLogger.live
+  val env = Clock.live ++ UserRepository.live ++ AppLogger.live
 
-  def runHttp(app: HttpApp[AppTask], cfg: AppConfig) = { implicit rts: ConcurrentEffect[AppTask] =>
-    BlazeServerBuilder[AppTask]
-      .bindHttp(cfg.server.port, cfg.server.host)
-      .withHttpApp(CORS(app))
-      .serve
-      .compile[AppTask, AppTask, ExitCode]
-      .drain
+  override def run(args: List[String]): ZIO[ZEnv, Nothing, Int] = {
+    val res = for {
+      cfg <- ZIO.fromEither(loadConfig())
+      server = ZIO
+        .runtime[AppEnvironment]
+        .flatMap(implicit rts =>
+          BlazeServerBuilder[AppTask]
+            .bindHttp(cfg.server.port, cfg.server.host)
+            .withHttpApp(CORS(finalHttpApp))
+            .serve
+            .compile[AppTask, AppTask, ExitCode]
+            .drain
+        )
+      program <- server.provideLayer(env)
+    } yield program
+
+    res.foldM(err => putStrLn(s"Execution failed with: $err") *> ZIO.succeed(1), _ => ZIO.succeed(0))
   }
-
-  val prog = ZIO.fromEither(loadConfig).map(_ => runHttp(finalHttpApp, _)) //.provideCustomLayer(env)
-
-  rt.unsafeRun(prog)
 }
