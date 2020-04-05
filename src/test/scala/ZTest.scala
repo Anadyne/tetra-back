@@ -16,7 +16,7 @@ object ZSpec extends DefaultRunnableSpec {
   def spec = suite("ZSpec")(
     testM("blah") {
 
-      val req = Request(Method.GET, uri"""/user""")
+      Request(Method.GET, uri"""/user""")
 
       // val rsp = app.run(req)
 

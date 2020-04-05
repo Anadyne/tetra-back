@@ -13,16 +13,16 @@ import org.http4s.server.middleware.CORS
 import org.http4s.server.middleware.Logger
 
 import cats.effect.{ ConcurrentEffect, ExitCode }
+import shapeless.ops.coproduct.ExtendBy
 import sttp.tapir.docs.openapi._
 import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.swagger.http4s.SwaggerHttp4s
 import types._
 
-import zio.interop.catz._
-// import zio.{ Runtime, ZEnv, ZIO }
-import zio._
-import zio.console.putStrLn
+import zio.{ Runtime, ZEnv, ZIO }
 import zio.clock.Clock
+import zio.console.putStrLn
+import zio.interop.catz._
 
 object Main extends App {
   val rt = Runtime.default
@@ -33,9 +33,9 @@ object Main extends App {
     Router("/" -> userRoute.getRoutes, "/docs" -> new SwaggerHttp4s(yaml).routes[AppTask]).orNotFound
   private val finalHttpApp = Logger.httpApp[AppTask](true, true)(httpApp)
 
-  // val env = Clock.live ++ UserRepository.live ++ AppLogger.live
+  val env = ExtServices.liveEnv ++ AppLogger.live
 
-  override def run(args: List[String]): ZIO[ZEnv, Nothing, Int] = {
+  override def run(args: List[String]) = {
     val res = for {
       cfg <- ZIO.fromEither(loadConfig())
       server = ZIO
@@ -48,9 +48,10 @@ object Main extends App {
             .compile[AppTask, AppTask, ExitCode]
             .drain
         )
-      program <- server //.provideLayer(ExtServices.liveEnv)
-    } yield program
+    } yield server
 
-    res.foldM(err => putStrLn(s"Execution failed with: $err") *> ZIO.succeed(1), _ => ZIO.succeed(0))
+    res
+      .provideCustomLayer(env)
+      .foldM(err => putStrLn(s"Execution failed with: $err") *> ZIO.succeed(1), _ => ZIO.succeed(0))
   }
 }

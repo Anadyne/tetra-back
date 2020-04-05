@@ -8,14 +8,13 @@ import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.{ DBFailure, ExpectedFailure }
 
 import com.typesafe.config.Config
-
-import zio.{ Has, ZIO, ZLayer }
-import zio.clock.Clock
 import com.typesafe.config.ConfigFactory
+
+import zio.clock.Clock
+import zio.{ Has, ZIO, ZLayer }
 
 object ExtServices {
 
-  // type ExtServices    = UserRepository
   type UserRepository = Has[UserRepository.Service]
 
   object UserRepository {
@@ -28,7 +27,7 @@ object ExtServices {
 
     // val any: ZLayer[UserRepository, Nothing, UserRepository] = ZLayer.requires[UserRepository]
 
-    val live /* : ZLayer[UserRepository with Config, Nothing, UserRepository] */ = ZLayer.fromFunction { cfg: Config =>
+    val live = ZLayer.fromService { cfg: Config =>
       new Service {
 
         lazy val ctx: H2JdbcContext[SnakeCase.type] = new H2JdbcContext(SnakeCase, cfg)
@@ -57,6 +56,7 @@ object ExtServices {
             .mapError(t => DBFailure(t))
             .unit
       }
+
     }
 
     def get(id: Long): ZIO[UserRepository, ExpectedFailure, Option[User]] =
@@ -70,7 +70,7 @@ object ExtServices {
 
   }
 
-  val cfg = ZLayer.succeed {
+  val config = {
     val map = Map(
       "dataSourceClassName" -> "",
       "dataSource.url"      -> "",
@@ -81,7 +81,5 @@ object ExtServices {
     ConfigFactory.parseMap(map)
   }
 
-  val hor = UserRepository.live ++ Clock.live
-
-  val liveEnv = cfg
+  val liveEnv = ZLayer.succeed(config) >>> UserRepository.live
 }
