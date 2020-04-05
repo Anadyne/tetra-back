@@ -6,7 +6,7 @@ import org.fsf.tetra.implicits.Throwable._
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.response.{ BadRequestResponse, ErrorResponse, InternalServerErrorResponse, NotFoundResponse }
 import org.fsf.tetra.model.{ DBFailure, ExpectedFailure, NotFoundFailure }
-import org.fsf.tetra.module.db.userRepository.UserRepository
+import org.fsf.tetra.module.db.ExtServices.UserRepository
 import org.fsf.tetra.module.logger.logger.Logger
 import org.http4s._
 import org.http4s.dsl.Http4sDsl

@@ -2,7 +2,7 @@ package org.fsf.tetra.module.db
 
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.{ ExpectedFailure }
-import org.fsf.tetra.module.db.userRepository._
+import org.fsf.tetra.module.db.ExtServices._
 
 import zio.{ Ref, ZIO, ZLayer }
 

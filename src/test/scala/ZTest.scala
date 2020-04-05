@@ -1,7 +1,7 @@
 package org.fsf.tetra
 
 import org.fsf.tetra.model.database.User
-import org.fsf.tetra.module.db.userRepository.UserRepository
+import org.fsf.tetra.module.db.ExtServices.UserRepository
 import org.fsf.tetra.module.logger.logger.Logger
 import org.fsf.tetra.route.UserRoute
 import org.http4s.Method

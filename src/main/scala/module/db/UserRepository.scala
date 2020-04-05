@@ -1,5 +1,7 @@
 package org.fsf.tetra.module.db
 
+import scala.jdk.CollectionConverters._
+
 import io.getquill.{ H2JdbcContext, SnakeCase }
 
 import org.fsf.tetra.model.database.User
@@ -8,9 +10,12 @@ import org.fsf.tetra.model.{ DBFailure, ExpectedFailure }
 import com.typesafe.config.Config
 
 import zio.{ Has, ZIO, ZLayer }
+import zio.clock.Clock
+import com.typesafe.config.ConfigFactory
 
-object userRepository {
+object ExtServices {
 
+  // type ExtServices    = UserRepository
   type UserRepository = Has[UserRepository.Service]
 
   object UserRepository {
@@ -21,9 +26,9 @@ object userRepository {
       def delete(id: Long): ZIO[Any, ExpectedFailure, Unit]
     }
 
-    val any: ZLayer[UserRepository, Nothing, UserRepository] = ZLayer.requires[UserRepository]
+    // val any: ZLayer[UserRepository, Nothing, UserRepository] = ZLayer.requires[UserRepository]
 
-    val live: ZLayer[UserRepository with Config, Nothing, UserRepository] = ZLayer.fromFunction { cfg: Config =>
+    val live /* : ZLayer[UserRepository with Config, Nothing, UserRepository] */ = ZLayer.fromFunction { cfg: Config =>
       new Service {
 
         lazy val ctx: H2JdbcContext[SnakeCase.type] = new H2JdbcContext(SnakeCase, cfg)
@@ -64,4 +69,19 @@ object userRepository {
       ZIO.accessM(_.get.delete(id))
 
   }
+
+  val cfg = ZLayer.succeed {
+    val map = Map(
+      "dataSourceClassName" -> "",
+      "dataSource.url"      -> "",
+      "dataSource.user"     -> "",
+      "dataSource.password" -> ""
+    ).asJava
+
+    ConfigFactory.parseMap(map)
+  }
+
+  val hor = UserRepository.live ++ Clock.live
+
+  val liveEnv = cfg
 }

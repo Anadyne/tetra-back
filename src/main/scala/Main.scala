@@ -1,7 +1,8 @@
 package org.fsf.tetra
 
 import org.fsf.tetra.model.config.config.{ loadConfig, AppConfig }
-import org.fsf.tetra.module.db.userRepository._
+import org.fsf.tetra.module.db.ExtServices
+import org.fsf.tetra.module.db.ExtServices._
 import org.fsf.tetra.module.logger.logger.{ Logger => AppLogger }
 import org.fsf.tetra.route.UserRoute
 import org.http4s.HttpApp
@@ -32,7 +33,7 @@ object Main extends App {
     Router("/" -> userRoute.getRoutes, "/docs" -> new SwaggerHttp4s(yaml).routes[AppTask]).orNotFound
   private val finalHttpApp = Logger.httpApp[AppTask](true, true)(httpApp)
 
-  val env = Clock.live ++ UserRepository.live ++ AppLogger.live
+  // val env = Clock.live ++ UserRepository.live ++ AppLogger.live
 
   override def run(args: List[String]): ZIO[ZEnv, Nothing, Int] = {
     val res = for {
@@ -47,7 +48,7 @@ object Main extends App {
             .compile[AppTask, AppTask, ExitCode]
             .drain
         )
-      program <- server.provideLayer(env)
+      program <- server //.provideLayer(ExtServices.liveEnv)
     } yield program
 
     res.foldM(err => putStrLn(s"Execution failed with: $err") *> ZIO.succeed(1), _ => ZIO.succeed(0))
