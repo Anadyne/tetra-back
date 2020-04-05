@@ -30,4 +30,6 @@ object logger {
     def debug(msg: => String): ZIO[Logger, Nothing, Unit] = ZIO.accessM(_.get.debug(msg))
   }
 
+  val liveEnv = Console.live >>> Logger.live
+
 }

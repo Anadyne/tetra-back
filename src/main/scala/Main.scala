@@ -2,7 +2,7 @@ package org.fsf.tetra
 
 import org.fsf.tetra.model.config.config.{ loadConfig }
 import org.fsf.tetra.module.db.ExtServices
-import org.fsf.tetra.module.logger.logger.{ Logger => AppLogger }
+import org.fsf.tetra.module.logger.logger
 import org.fsf.tetra.route.UserRoute
 import org.http4s.implicits._
 import org.http4s.server.Router
@@ -16,13 +16,12 @@ import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.swagger.http4s.SwaggerHttp4s
 import types._
 
-import zio.{ Runtime, ZIO }
 import zio.clock.Clock
 import zio.console.putStrLn
 import zio.interop.catz._
+import zio.{ ZIO }
 
 object Main extends CatsApp {
-  val rt = Runtime.default
 
   private val userRoute = new UserRoute[AppEnvironment]
   private val yaml      = userRoute.getEndPoints.toOpenAPI("User", "1.0").toYaml
@@ -30,7 +29,7 @@ object Main extends CatsApp {
     Router("/" -> userRoute.getRoutes, "/docs" -> new SwaggerHttp4s(yaml).routes[AppTask]).orNotFound
   private val finalHttpApp = Logger.httpApp[AppTask](true, true)(httpApp)
 
-  val env = ExtServices.liveEnv ++ AppLogger.live ++ Clock.live
+  val env = ExtServices.liveEnv ++ logger.liveEnv ++ Clock.live
 
   override def run(args: List[String]) = {
     val res = for {
