@@ -10,7 +10,6 @@ import org.fsf.tetra.model.{ DBFailure, ExpectedFailure }
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 
-import zio.clock.Clock
 import zio.{ Has, ZIO, ZLayer }
 
 object ExtServices {
@@ -24,8 +23,6 @@ object ExtServices {
       def create(user: User): ZIO[Any, ExpectedFailure, Unit]
       def delete(id: Long): ZIO[Any, ExpectedFailure, Unit]
     }
-
-    // val any: ZLayer[UserRepository, Nothing, UserRepository] = ZLayer.requires[UserRepository]
 
     val live = ZLayer.fromService { cfg: Config =>
       new Service {

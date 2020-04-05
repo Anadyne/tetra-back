@@ -1,30 +1,27 @@
 package org.fsf.tetra
 
-import org.fsf.tetra.model.config.config.{ loadConfig, AppConfig }
+import org.fsf.tetra.model.config.config.{ loadConfig }
 import org.fsf.tetra.module.db.ExtServices
-import org.fsf.tetra.module.db.ExtServices._
 import org.fsf.tetra.module.logger.logger.{ Logger => AppLogger }
 import org.fsf.tetra.route.UserRoute
-import org.http4s.HttpApp
 import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware.CORS
 import org.http4s.server.middleware.Logger
 
-import cats.effect.{ ConcurrentEffect, ExitCode }
-import shapeless.ops.coproduct.ExtendBy
+import cats.effect.{ ExitCode }
 import sttp.tapir.docs.openapi._
 import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.swagger.http4s.SwaggerHttp4s
 import types._
 
-import zio.{ Runtime, ZEnv, ZIO }
+import zio.{ Runtime, ZIO }
 import zio.clock.Clock
 import zio.console.putStrLn
 import zio.interop.catz._
 
-object Main extends App {
+object Main extends CatsApp {
   val rt = Runtime.default
 
   private val userRoute = new UserRoute[AppEnvironment]
@@ -33,7 +30,7 @@ object Main extends App {
     Router("/" -> userRoute.getRoutes, "/docs" -> new SwaggerHttp4s(yaml).routes[AppTask]).orNotFound
   private val finalHttpApp = Logger.httpApp[AppTask](true, true)(httpApp)
 
-  val env = ExtServices.liveEnv ++ AppLogger.live
+  val env = ExtServices.liveEnv ++ AppLogger.live ++ Clock.live
 
   override def run(args: List[String]) = {
     val res = for {
