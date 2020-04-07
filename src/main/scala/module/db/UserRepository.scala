@@ -4,6 +4,7 @@ import scala.jdk.CollectionConverters._
 
 import io.getquill.{ H2JdbcContext, SnakeCase }
 
+import org.fsf.tetra.model.config.config.AppConfig
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.{ DBFailure, ExpectedFailure }
 
@@ -67,16 +68,15 @@ object ExtServices {
 
   }
 
-  val config = {
+  def dbConfig(cfg: AppConfig) = {
     val map = Map(
-      "dataSourceClassName" -> "",
-      "dataSource.url"      -> "",
-      "dataSource.user"     -> "",
-      "dataSource.password" -> ""
+      "dataSourceClassName" -> cfg.db.className,
+      "dataSource.url"      -> cfg.db.url,
+      "dataSource.user"     -> cfg.db.user,
+      "dataSource.password" -> cfg.db.pass
     ).asJava
 
     ConfigFactory.parseMap(map)
   }
 
-  val liveEnv = ZLayer.succeed(config) >>> UserRepository.live
 }

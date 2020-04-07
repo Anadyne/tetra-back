@@ -19,7 +19,7 @@ import types._
 import zio.clock.Clock
 import zio.console.putStrLn
 import zio.interop.catz._
-import zio.{ ZIO }
+import zio.{ ZIO, ZLayer }
 
 object Main extends CatsApp {
 
@@ -29,11 +29,11 @@ object Main extends CatsApp {
     Router("/" -> userRoute.getRoutes, "/docs" -> new SwaggerHttp4s(yaml).routes[AppTask]).orNotFound
   private val finalHttpApp = Logger.httpApp[AppTask](true, true)(httpApp)
 
-  val env = ExtServices.liveEnv ++ logger.liveEnv ++ Clock.live
-
   override def run(args: List[String]) = {
     val res = for {
-      cfg <- ZIO.fromEither(loadConfig())
+      cfg   <- ZIO.fromEither(loadConfig())
+      dbCfg = ExtServices.dbConfig(cfg)
+      env   = ZLayer.succeed(dbCfg) >>> ExtServices.UserRepository.live ++ logger.liveEnv ++ Clock.live
       server <- ZIO
                  .runtime[AppEnvironment]
                  .flatMap(implicit rts =>
