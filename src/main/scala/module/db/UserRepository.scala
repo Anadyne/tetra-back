@@ -27,7 +27,7 @@ object ExtServices {
     val live = ZLayer.fromService { cfg: Config =>
       new Service {
 
-        lazy val ctx: H2JdbcContext[SnakeCase.type] = new H2JdbcContext(SnakeCase, cfg)
+        private lazy val ctx: H2JdbcContext[SnakeCase.type] = new H2JdbcContext(SnakeCase, cfg)
         import ctx._
 
         def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]] =

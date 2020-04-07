@@ -4,7 +4,7 @@ object Version {
 
   val http4s = "0.21.3"
   val circe  = "0.13.0"
-  val tapir  = "0.13.0"
+  val tapir  = "0.13.1"
 
   val quill  = "3.5.1"
   val h2db   = "1.4.200"

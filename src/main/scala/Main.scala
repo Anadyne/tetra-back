@@ -34,20 +34,19 @@ object Main extends CatsApp {
   override def run(args: List[String]) = {
     val res = for {
       cfg <- ZIO.fromEither(loadConfig())
-      server = ZIO
-        .runtime[AppEnvironment]
-        .flatMap(implicit rts =>
-          BlazeServerBuilder[AppTask]
-            .bindHttp(cfg.server.port, cfg.server.host)
-            .withHttpApp(CORS(finalHttpApp))
-            .serve
-            .compile[AppTask, AppTask, ExitCode]
-            .drain
-        )
+      server <- ZIO
+                 .runtime[AppEnvironment]
+                 .flatMap(implicit rts =>
+                   BlazeServerBuilder[AppTask]
+                     .bindHttp(cfg.server.port, cfg.server.host)
+                     .withHttpApp(CORS(finalHttpApp))
+                     .serve
+                     .compile[AppTask, AppTask, ExitCode]
+                     .drain
+                 )
+                 .provideCustomLayer(env)
     } yield server
 
-    res
-      .provideCustomLayer(env)
-      .foldM(err => putStrLn(s"Execution failed with: $err") *> ZIO.succeed(1), _ => ZIO.succeed(0))
+    res.foldM(err => putStrLn(s"Execution failed with: $err") *> ZIO.succeed(1), _ => ZIO.succeed(0))
   }
 }
