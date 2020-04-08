@@ -28,6 +28,7 @@ lazy val http4sDeps = libraryDependencies ++= Seq(
 lazy val tapirDeps = libraryDependencies ++= Seq(
   "com.softwaremill.sttp.tapir" %% "tapir-core"               % Version.tapir,
   "com.softwaremill.sttp.tapir" %% "tapir-http4s-server"      % Version.tapir,
+  "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server"   % Version.tapir,
   "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-http4s"  % Version.tapir,
   "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"       % Version.tapir,
   "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % Version.tapir,
