@@ -23,7 +23,42 @@ import sttp.tapir.server.{ DecodeFailureHandling }
 import zio.interop.catz._
 import zio.{ RIO, ZIO }
 
+object Endpoints {
+
+  val getUserEndPoint = endpoint.get
+    .in("user" / path[Long]("user id"))
+    .errorOut(
+      oneOf(
+        statusMapping(StatusCodes.error, jsonBody[InternalServerErrorResponse]),
+        statusMapping(StatusCodes.error, jsonBody[NotFoundResponse])
+      )
+    )
+    .out(jsonBody[User])
+
+  val createUserEndPoint = endpoint.post
+    .in("user")
+    .in(jsonBody[User])
+    .errorOut(
+      oneOf[ErrorResponse](
+        statusMapping(StatusCodes.error, jsonBody[InternalServerErrorResponse])
+      )
+    )
+    .out(statusCode(StatusCodes.success))
+
+  val deleteUserEndPoint = endpoint.delete
+    .in("user" / path[Long]("user id"))
+    .errorOut(
+      oneOf(
+        statusMapping(StatusCodes.error, jsonBody[InternalServerErrorResponse]),
+        statusMapping(StatusCodes.error, jsonBody[NotFoundResponse])
+      )
+    )
+    .out(emptyOutput)
+}
+
 class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
+  import Endpoints._
+
   private implicit val customServerOptions: Http4sServerOptions[RIO[R, *]] = Http4sServerOptions
     .default[RIO[R, *]]
     .copy(
@@ -35,36 +70,6 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
         }
       }
     )
-
-  private val getUserEndPoint = endpoint.get
-    .in("user" / path[Long]("user id"))
-    .errorOut(
-      oneOf(
-        statusMapping(StatusCodes.error, jsonBody[InternalServerErrorResponse]),
-        statusMapping(StatusCodes.error, jsonBody[NotFoundResponse])
-      )
-    )
-    .out(jsonBody[User])
-
-  private val createUserEndPoint = endpoint.post
-    .in("user")
-    .in(jsonBody[User])
-    .errorOut(
-      oneOf[ErrorResponse](
-        statusMapping(StatusCodes.error, jsonBody[InternalServerErrorResponse])
-      )
-    )
-    .out(statusCode(StatusCodes.success))
-
-  private val deleteUserEndPoint = endpoint.delete
-    .in("user" / path[Long]("user id"))
-    .errorOut(
-      oneOf(
-        statusMapping(StatusCodes.error, jsonBody[InternalServerErrorResponse]),
-        statusMapping(StatusCodes.error, jsonBody[NotFoundResponse])
-      )
-    )
-    .out(emptyOutput)
 
   val getRoutes: HttpRoutes[RIO[R, *]] = {
     getUserEndPoint.toRoutes(userId => handleError(getUser(userId))) <+> createUserEndPoint.toRoutes(user =>
