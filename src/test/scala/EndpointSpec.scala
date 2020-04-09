@@ -12,7 +12,6 @@ import sttp.client.monad.MonadError
 import sttp.client.monad._
 import sttp.client.testing.SttpBackendStub
 import sttp.model.Uri
-import sttp.tapir._
 import sttp.tapir.client.sttp._
 import sttp.tapir.server.stub._
 
@@ -24,11 +23,16 @@ object EndpointSpec extends DefaultRunnableSpec {
     test("Validate getUserEndpoint") {
 
       implicit val backend = SttpBackendStub
+      // .withFallback(???)
         .apply(idMonad)
-        .whenRequestMatches(endpoint)
+        .whenRequestMatches(_.uri.path.startsWith(List("a", "b")))
+        .thenRespond("Hello there!")
+        .whenRequestMatches(getUserEndPoint)
         .thenSuccess(user)
 
-      val resp = getUserEndPoint.toSttpRequestUnsafe(Uri(new URI("http://test.com"))).apply(11).send()
+      val resp  = getUserEndPoint.toSttpRequestUnsafe(Uri(new URI("http://test.com"))).apply(11).send()
+      val resp1 = basicRequest.get(uri"http://example.org/a/b/c").send()
+      println(resp1)
 
       val exp: Response[Either[ErrorResponse, User]] = Response.ok(Right(user))
 
