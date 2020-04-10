@@ -26,7 +26,7 @@ object Main extends CatsApp {
   private val userRoute = new UserRoute[AppEnvironment]
   private val yaml      = userRoute.getEndPoints.toOpenAPI("User", "1.0").toYaml
   private val httpApp =
-    Router("/" -> userRoute.getRoutes, "/docs" -> new SwaggerHttp4s(yaml).routes[AppTask]).orNotFound
+    Router("/" -> userRoute.allRoutes, "/docs" -> new SwaggerHttp4s(yaml).routes[AppTask]).orNotFound
   private val finalHttpApp = Logger.httpApp[AppTask](true, true)(httpApp)
 
   override def run(args: List[String]) = {

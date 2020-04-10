@@ -35,6 +35,13 @@ lazy val tapirDeps = libraryDependencies ++= Seq(
   "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % Version.tapir
 )
 
+lazy val sttpDeps = libraryDependencies ++= Seq(
+  "com.softwaremill.sttp.client" %% "core"                          % Version.sttp,
+  "com.softwaremill.sttp.client" %% "circe"                         % Version.sttp,
+  "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % Version.sttp,
+  "io.circe"                     %% "circe-generic"                 % Version.circe
+)
+
 lazy val commonDeps = libraryDependencies ++= Seq(
   "io.circe"              %% "circe-generic"  % Version.circe,
   "io.getquill"           %% "quill-jdbc"     % Version.quill,
@@ -55,6 +62,7 @@ lazy val root = (project in file("."))
     zioDeps,
     http4sDeps,
     tapirDeps,
+    sttpDeps,
     commonDeps,
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
     addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)

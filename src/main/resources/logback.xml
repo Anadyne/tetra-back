@@ -5,7 +5,8 @@
             </Pattern>
         </layout>
     </appender>
-    <root level="DEBUG">
+    <logger name="org.fsf.tetra.client" level="WARN" />
+    <root level="WARN">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>
