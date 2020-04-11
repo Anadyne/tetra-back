@@ -11,6 +11,8 @@ import org.fsf.tetra.module.logger.logger.Logger
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
 
+import com.typesafe.scalalogging.LazyLogging
+
 import cats.syntax.semigroupk._
 import sttp.tapir.DecodeResult.Error
 import sttp.tapir._
@@ -22,16 +24,16 @@ import sttp.tapir.server.{ DecodeFailureHandling }
 
 import zio.interop.catz._
 import zio.{ RIO, ZIO }
-import com.typesafe.scalalogging.LazyLogging
 
 object Endpoints {
 
-  val helloEndpoint /* : Endpoint[String, ErrorResponse, String, Nothing] */ = endpoint.get
+  val helloEndpoint: Endpoint[String, ErrorResponse, String, Nothing] = endpoint.get
     .in("hello")
     .in(query[String]("name"))
     .errorOut(
       oneOf(
-        statusMapping(StatusCodes.error, jsonBody[NotFoundResponse])
+        statusMapping(StatusCodes.error, jsonBody[NotFoundResponse]),
+        statusMapping(StatusCodes.error, jsonBody[InternalServerErrorResponse])
       )
     )
     .out(stringBody)
@@ -82,12 +84,9 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] wi
       }
     )
 
-  val helloRoute: HttpRoutes[RIO[R, *]] = {
-
-    helloEndpoint.toRoutes { name =>
-      logger.debug(s"Hello called for user $name")
-      handleError(UserRepository.hello(name))
-    }
+  val helloRoute: HttpRoutes[RIO[R, *]] = helloEndpoint.toRoutes { name =>
+    logger.debug(s"Hello called for user $name")
+    handleError(UserRepository.hello(name))
   }
 
   val newRoute: HttpRoutes[RIO[R, *]] = createUserEndpoint.toRoutes { id =>
@@ -110,7 +109,7 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] wi
     handleError(result)
   }
 
-  val allRoutes: HttpRoutes[RIO[R, *]] = { newRoute <+> getRoute <+> delRoute }
+  val allRoutes: HttpRoutes[RIO[R, *]] = { helloRoute <+> newRoute <+> getRoute <+> delRoute }
 
   val getEndpoints = {
     List(getUserEndpoint, createUserEndpoint, deleteUserEndpoint)

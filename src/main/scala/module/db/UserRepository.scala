@@ -2,6 +2,7 @@ package org.fsf.tetra.module.db
 
 import scala.jdk.CollectionConverters._
 
+import io.circe.generic.auto._, io.circe.syntax._
 import io.getquill.{ H2JdbcContext, SnakeCase }
 
 import org.fsf.tetra.model.config.config.AppConfig
@@ -13,8 +14,6 @@ import com.typesafe.config.ConfigFactory
 
 import zio.{ Has, ZIO, ZLayer }
 
-import io.circe.generic.auto._, io.circe.syntax._
-
 object ExtServices {
 
   type UserRepository = Has[UserRepository.Service]
@@ -22,7 +21,7 @@ object ExtServices {
   object UserRepository {
 
     trait Service {
-      def hello(name: String): ZIO[Any, ExpectedFailure, User]
+      def hello(name: String): ZIO[Any, ExpectedFailure, String]
       def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]]
       def create(user: User): ZIO[Any, ExpectedFailure, Unit]
       def delete(id: Long): ZIO[Any, ExpectedFailure, Unit]
@@ -34,7 +33,7 @@ object ExtServices {
         private lazy val ctx: H2JdbcContext[SnakeCase.type] = new H2JdbcContext(SnakeCase, cfg)
         import ctx._
 
-        def hello(name: String): ZIO[Any, ExpectedFailure, User] = ZIO.succeed(User(13, "Boris", 34))
+        def hello(name: String): ZIO[Any, ExpectedFailure, String] = ZIO.succeed(User(13, "Boris", 34).asJson.toString)
 
         def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]] =
           for {
@@ -60,7 +59,7 @@ object ExtServices {
 
     }
 
-    def hello(name: String): ZIO[UserRepository, ExpectedFailure, User] =
+    def hello(name: String): ZIO[UserRepository, ExpectedFailure, String] =
       ZIO.accessM(_.get.hello(name))
 
     def get(id: Long): ZIO[UserRepository, ExpectedFailure, Option[User]] =

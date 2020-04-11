@@ -27,10 +27,10 @@ object EndpointSpec extends DefaultRunnableSpec {
         .apply(idMonad)
         .whenRequestMatches(_.uri.path.startsWith(List("a", "b")))
         .thenRespond("Hello there!")
-        .whenRequestMatches(getUserEndPoint)
+        .whenRequestMatches(getUserEndpoint)
         .thenSuccess(user)
 
-      val resp  = getUserEndPoint.toSttpRequestUnsafe(Uri(new URI("http://test.com"))).apply(11).send()
+      val resp  = getUserEndpoint.toSttpRequestUnsafe(Uri(new URI("http://test.com"))).apply(11).send()
       val resp1 = basicRequest.get(uri"http://example.org/a/b/c").send()
       println(resp1)
 

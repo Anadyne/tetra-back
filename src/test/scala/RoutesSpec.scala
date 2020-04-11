@@ -4,13 +4,13 @@ import java.net.URI
 
 import org.fsf.tetra.client.Client
 import org.fsf.tetra.model.database.User
+import org.fsf.tetra.types._
 
 import sttp.model.Uri
 
 import zio.test.Assertion._
 import zio.test._
 import zio.{ ZEnv }
-import org.fsf.tetra.types._
 
 object RoutesSpec extends DefaultRunnableSpec {
   def spec = suite("Routes Spec")(

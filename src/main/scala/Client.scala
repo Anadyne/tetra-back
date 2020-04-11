@@ -3,6 +3,9 @@ package org.fsf.tetra.client
 import io.circe.generic.auto._
 
 import org.fsf.tetra.model.database.User
+import org.fsf.tetra.types._
+
+import com.typesafe.scalalogging.LazyLogging
 
 import sttp.client._
 import sttp.client.asynchttpclient.zio._
@@ -11,8 +14,6 @@ import sttp.model.Uri
 
 import zio.console.{ putStrLn, Console }
 import zio.{ URIO, ZEnv, ZIO }
-import com.typesafe.scalalogging.LazyLogging
-import org.fsf.tetra.types._
 
 class Client() extends LazyLogging {
 

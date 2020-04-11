@@ -1,5 +1,7 @@
 package org.fsf.tetra.module.db
 
+import io.circe.generic.auto._, io.circe.syntax._
+
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.{ ExpectedFailure }
 import org.fsf.tetra.module.db.ExtServices._
@@ -12,7 +14,7 @@ object mockRepository {
   val live: ZLayer[MockR, Nothing, UserRepository] = ZLayer.fromFunction { ref: MockR =>
     new UserRepository.Service {
 
-      def hello(name: String): ZIO[Any, ExpectedFailure, User] = ZIO.succeed(User(13, "Boris", 34))
+      def hello(name: String): ZIO[Any, ExpectedFailure, String] = ZIO.succeed(User(13, "Boris", 34).asJson.toString)
       def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]] =
         for {
           user <- ref.get.map(_.get(id))
