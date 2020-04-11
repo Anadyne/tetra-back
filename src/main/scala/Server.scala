@@ -21,7 +21,7 @@ import zio.console.putStrLn
 import zio.interop.catz._
 import zio.{ ZIO, ZLayer }
 
-object Main extends CatsApp {
+object Server extends CatsApp {
 
   private val userRoute = new UserRoute[AppEnvironment]
   private val yaml      = userRoute.getEndPoints.toOpenAPI("User", "1.0").toYaml

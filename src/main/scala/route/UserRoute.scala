@@ -20,9 +20,9 @@ import sttp.tapir.server.http4s._
 import sttp.tapir.server.{ DecodeFailureContext, ServerDefaults }
 import sttp.tapir.server.{ DecodeFailureHandling }
 
+import zio.console.{ putStrLn }
 import zio.interop.catz._
 import zio.{ RIO, ZIO }
-import zio.console.{ putStrLn }
 
 object Endpoints {
 
