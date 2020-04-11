@@ -24,7 +24,7 @@ import zio.{ ZIO, ZLayer }
 object Server extends CatsApp {
 
   private val userRoute = new UserRoute[AppEnvironment]
-  private val yaml      = userRoute.getEndPoints.toOpenAPI("User", "1.0").toYaml
+  private val yaml      = userRoute.getEndpoints.toOpenAPI("User", "1.0").toYaml
   private val httpApp =
     Router("/" -> userRoute.allRoutes, "/docs" -> new SwaggerHttp4s(yaml).routes[AppTask]).orNotFound
   private val finalHttpApp = Logger.httpApp[AppTask](true, true)(httpApp)

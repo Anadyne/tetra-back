@@ -20,13 +20,23 @@ import sttp.tapir.server.http4s._
 import sttp.tapir.server.{ DecodeFailureContext, ServerDefaults }
 import sttp.tapir.server.{ DecodeFailureHandling }
 
-import zio.console.{ putStrLn }
 import zio.interop.catz._
 import zio.{ RIO, ZIO }
+import com.typesafe.scalalogging.LazyLogging
 
 object Endpoints {
 
-  val getUserEndPoint = endpoint.get
+  val helloEndpoint /* : Endpoint[String, ErrorResponse, String, Nothing] */ = endpoint.get
+    .in("hello")
+    .in(query[String]("name"))
+    .errorOut(
+      oneOf(
+        statusMapping(StatusCodes.error, jsonBody[NotFoundResponse])
+      )
+    )
+    .out(stringBody)
+
+  val getUserEndpoint: Endpoint[Long, ErrorResponse, User, Nothing] = endpoint.get
     .in("user" / path[Long]("user id"))
     .errorOut(
       oneOf(
@@ -36,7 +46,7 @@ object Endpoints {
     )
     .out(jsonBody[User])
 
-  val createUserEndPoint = endpoint.post
+  val createUserEndpoint: Endpoint[User, ErrorResponse, Unit, Nothing] = endpoint.post
     .in("user")
     .in(jsonBody[User])
     .errorOut(
@@ -46,7 +56,7 @@ object Endpoints {
     )
     .out(statusCode(StatusCodes.success))
 
-  val deleteUserEndPoint = endpoint.delete
+  val deleteUserEndpoint: Endpoint[Long, ErrorResponse, Unit, Nothing] = endpoint.delete
     .in("user" / path[Long]("user id"))
     .errorOut(
       oneOf(
@@ -57,7 +67,7 @@ object Endpoints {
     .out(emptyOutput)
 }
 
-class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
+class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] with LazyLogging {
   import Endpoints._
 
   private implicit val customServerOptions: Http4sServerOptions[RIO[R, *]] = Http4sServerOptions
@@ -72,15 +82,25 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
       }
     )
 
-  val newRoute: HttpRoutes[RIO[R, *]] = createUserEndPoint.toRoutes { user =>
-    putStrLn(s">>>>>> New user $user")
-    println(s">>>>>> New user $user")
-    handleError(UserRepository.create(user))
+  val helloRoute: HttpRoutes[RIO[R, *]] = {
+
+    helloEndpoint.toRoutes { name =>
+      logger.debug(s"Hello called for user $name")
+      handleError(UserRepository.hello(name))
+    }
   }
 
-  val getRoute: HttpRoutes[RIO[R, *]] = getUserEndPoint.toRoutes(userId => handleError(getUser(userId)))
+  val newRoute: HttpRoutes[RIO[R, *]] = createUserEndpoint.toRoutes { id =>
+    logger.debug(s"New User called for user $id")
+    handleError(UserRepository.create(id))
+  }
 
-  val delRoute: HttpRoutes[RIO[R, *]] = deleteUserEndPoint.toRoutes { id =>
+  val getRoute: HttpRoutes[RIO[R, *]] = getUserEndpoint.toRoutes { id =>
+    logger.debug(s"Get User called for user $id")
+    handleError(getUser(id))
+  }
+
+  val delRoute: HttpRoutes[RIO[R, *]] = deleteUserEndpoint.toRoutes { id =>
     val result = for {
       _ <- Logger.debug(s"id: $id")
       // user <- UserRepository.getUser(id)
@@ -92,8 +112,8 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] {
 
   val allRoutes: HttpRoutes[RIO[R, *]] = { newRoute <+> getRoute <+> delRoute }
 
-  val getEndPoints = {
-    List(getUserEndPoint, createUserEndPoint, deleteUserEndPoint)
+  val getEndpoints = {
+    List(getUserEndpoint, createUserEndpoint, deleteUserEndpoint)
   }
 
   private def getUser(userId: Long): ZIO[R, ExpectedFailure, User] =

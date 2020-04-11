@@ -1,4 +1,4 @@
-package org.fsf.tetra
+package org.fsf.tetra.client
 
 import java.net.URI
 
@@ -9,16 +9,18 @@ import sttp.model.Uri
 
 import zio.test.Assertion._
 import zio.test._
-import zio.{ ZIO }
+import zio.{ ZEnv }
+import org.fsf.tetra.types._
 
 object RoutesSpec extends DefaultRunnableSpec {
   def spec = suite("Routes Spec")(
     testM("Validate getUserEndpoint") {
 
-      val req = new URI("https://httpbin.org/post")
-      client.run(Uri(req))
+      val req = new URI("http://localhost:5566/user/0")
+      // val req = new URI("http://localhost:5566/docs")
+      val res = client.run(Uri(req), POST).provideLayer(ZEnv.live)
 
-      assertM(ZIO.succeed(true))(isTrue)
+      assertM(res)(equalTo(0))
     }
   )
   val client = new Client()

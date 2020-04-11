@@ -13,6 +13,8 @@ import com.typesafe.config.ConfigFactory
 
 import zio.{ Has, ZIO, ZLayer }
 
+import io.circe.generic.auto._, io.circe.syntax._
+
 object ExtServices {
 
   type UserRepository = Has[UserRepository.Service]
@@ -20,6 +22,7 @@ object ExtServices {
   object UserRepository {
 
     trait Service {
+      def hello(name: String): ZIO[Any, ExpectedFailure, User]
       def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]]
       def create(user: User): ZIO[Any, ExpectedFailure, Unit]
       def delete(id: Long): ZIO[Any, ExpectedFailure, Unit]
@@ -31,6 +34,8 @@ object ExtServices {
         private lazy val ctx: H2JdbcContext[SnakeCase.type] = new H2JdbcContext(SnakeCase, cfg)
         import ctx._
 
+        def hello(name: String): ZIO[Any, ExpectedFailure, User] = ZIO.succeed(User(13, "Boris", 34))
+
         def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]] =
           for {
             list <- ZIO.effect(ctx.run(query[User].filter(_.id == lift(id)))).mapError(t => DBFailure(t))
@@ -38,9 +43,7 @@ object ExtServices {
                      case Nil    => ZIO.none
                      case s :: _ => ZIO.some(s)
                    }
-          } yield {
-            user
-          }
+          } yield user
 
         def create(user: User): ZIO[Any, ExpectedFailure, Unit] =
           zio.IO
@@ -56,6 +59,9 @@ object ExtServices {
       }
 
     }
+
+    def hello(name: String): ZIO[UserRepository, ExpectedFailure, User] =
+      ZIO.accessM(_.get.hello(name))
 
     def get(id: Long): ZIO[UserRepository, ExpectedFailure, Option[User]] =
       ZIO.accessM(_.get.get(id))

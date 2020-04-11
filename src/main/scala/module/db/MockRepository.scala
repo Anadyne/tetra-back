@@ -11,6 +11,8 @@ object mockRepository {
 
   val live: ZLayer[MockR, Nothing, UserRepository] = ZLayer.fromFunction { ref: MockR =>
     new UserRepository.Service {
+
+      def hello(name: String): ZIO[Any, ExpectedFailure, User] = ZIO.succeed(User(13, "Boris", 34))
       def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]] =
         for {
           user <- ref.get.map(_.get(id))

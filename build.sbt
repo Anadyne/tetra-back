@@ -8,6 +8,9 @@ lazy val commonSettings = Seq(
 // Refine scalac params from tpolecat
   scalacOptions --= Seq(
     "-Xfatal-warnings"
+  ),
+  scalacOptions ++= Seq(
+    "-language:reflectiveCalls"
   )
 )
 
