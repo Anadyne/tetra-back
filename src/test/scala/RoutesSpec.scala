@@ -16,9 +16,10 @@ object RoutesSpec extends DefaultRunnableSpec {
   def spec = suite("Routes Spec")(
     testM("Validate getUserEndpoint") {
 
+      // val req = new URI("http://localhost:5566/hello?name=Boris")
       val req = new URI("http://localhost:5566/user/0")
       // val req = new URI("http://localhost:5566/docs")
-      val res = client.run(Uri(req), POST).provideLayer(ZEnv.live)
+      val res = client.run(Uri(req), GET).provideLayer(ZEnv.live)
 
       assertM(res)(equalTo(0))
     }

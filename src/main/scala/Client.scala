@@ -28,6 +28,7 @@ class Client() extends LazyLogging {
       case GET =>
         basicRequest
           .get(link)
+          // .response(asStringAlways)
           .response(asJson[User])
     }
 
@@ -35,11 +36,14 @@ class Client() extends LazyLogging {
 
     // create a description of a program, which requires two dependencies in the environment:
     // the SttpClient, and the Console
-    val sendAndPrint: ZIO[Console with SttpClient, Throwable, Unit] = for {
-      response <- SttpClient.send(request)
-      _        <- putStrLn(s"Got response code: ${response.code}")
-      _        <- putStrLn(response.body.toString)
-    } yield ()
+    val sendAndPrint: ZIO[Console with SttpClient, Throwable, Unit] = {
+      logger.debug(">>>>>>>>>>>  Sending sttp request ")
+      for {
+        response <- SttpClient.send(request)
+        _        <- putStrLn(s"Got response code: ${response.code}")
+        _        <- putStrLn(response.body.toString)
+      } yield ()
+    }
 
     logger.debug(">>>>>> 3")
 

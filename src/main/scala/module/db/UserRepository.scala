@@ -33,7 +33,7 @@ object ExtServices {
         private lazy val ctx: H2JdbcContext[SnakeCase.type] = new H2JdbcContext(SnakeCase, cfg)
         import ctx._
 
-        def hello(name: String): ZIO[Any, ExpectedFailure, String] = ZIO.succeed(User(13, "Boris", 34).asJson.toString)
+        def hello(name: String): ZIO[Any, ExpectedFailure, String] = ZIO.succeed(User(11, "Boris", 15).asJson.toString)
 
         def get(id: Long): ZIO[Any, ExpectedFailure, Option[User]] =
           for {
