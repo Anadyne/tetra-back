@@ -6,7 +6,7 @@ import org.fsf.tetra.implicits.Throwable._
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.response.{ BadRequestResponse, ErrorResponse, InternalServerErrorResponse, NotFoundResponse }
 import org.fsf.tetra.model.{ DBFailure, ExpectedFailure, NotFoundFailure }
-import org.fsf.tetra.module.db.{ UserRepository }
+import org.fsf.tetra.module.db.UserRepository
 import org.fsf.tetra.module.logging.AppLogger.Logger
 import org.fsf.tetra.types.UserRepository
 import org.http4s._
@@ -20,8 +20,7 @@ import sttp.tapir._
 import sttp.tapir.json.circe._
 import sttp.tapir.server.ServerDefaults.StatusCodes
 import sttp.tapir.server.http4s._
-import sttp.tapir.server.{ DecodeFailureContext, ServerDefaults }
-import sttp.tapir.server.{ DecodeFailureHandling }
+import sttp.tapir.server.{ DecodeFailureContext, DecodeFailureHandling, ServerDefaults }
 
 import zio.interop.catz._
 import zio.{ RIO, ZIO }
@@ -85,48 +84,44 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] wi
       }
     )
 
-  val helloRoute: HttpRoutes[RIO[R, *]] = helloEndpoint.toRoutes { name =>
+  private val helloRoute: HttpRoutes[RIO[R, *]] = helloEndpoint.toRoutes { name =>
     logger.debug(s"Hello called for user $name")
     handleError(UserRepository.hello(name))
   }
 
-  val newRoute: HttpRoutes[RIO[R, *]] = createUserEndpoint.toRoutes { id =>
+  private val newRoute: HttpRoutes[RIO[R, *]] = createUserEndpoint.toRoutes { id =>
     logger.debug(s"New User called for user $id")
     handleError(UserRepository.create(id))
   }
 
-  val getRoute: HttpRoutes[RIO[R, *]] = getUserEndpoint.toRoutes { id =>
+  private val getRoute: HttpRoutes[RIO[R, *]] = getUserEndpoint.toRoutes { id =>
     logger.debug(s"Get User called for user $id")
     handleError(getUser(id))
   }
 
-  val delRoute: HttpRoutes[RIO[R, *]] = deleteUserEndpoint.toRoutes { id =>
+  private val delRoute: HttpRoutes[RIO[R, *]] = deleteUserEndpoint.toRoutes { id =>
     logger.debug(s"Del User called for user $id")
     val result = for {
       _ <- Logger.debug(s"id: $id")
       _ <- UserRepository.delete(id)
-    } yield {}
+    } yield ()
 
     handleError(result)
   }
 
   val allRoutes: HttpRoutes[RIO[R, *]] = { helloRoute <+> newRoute <+> getRoute <+> delRoute }
 
-  val getEndpoints = {
-    List(getUserEndpoint, createUserEndpoint, deleteUserEndpoint)
-  }
+  val getEndpoints = List(getUserEndpoint, createUserEndpoint, deleteUserEndpoint)
 
   private def getUser(userId: Long): ZIO[R, ExpectedFailure, User] =
     for {
       _    <- Logger.debug(s"id: $userId")
       user <- UserRepository.get(userId)
-      u <- user match {
-            case None    => ZIO.fail(NotFoundFailure(s"Can not find a user by $userId"))
-            case Some(s) => ZIO.succeed(s)
-          }
-    } yield {
-      u
-    }
+      usr <- user match {
+              case None    => ZIO.fail(NotFoundFailure(s"Can not find a user by $userId"))
+              case Some(s) => ZIO.succeed(s)
+            }
+    } yield usr
 
   private def handleError[A](result: ZIO[R, ExpectedFailure, A]): ZIO[R, Throwable, Either[ErrorResponse, A]] =
     result

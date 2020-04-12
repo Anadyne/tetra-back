@@ -61,22 +61,19 @@ object LiveRepository extends LazyLogging {
     ConfigFactory.parseMap(map)
   }
 
-  private def dbInit(cfg: AppConfig): Int = {
-    val dataSource = cfg.db.url
+  private def dbInit(cfg: AppConfig): Int =
     Flyway
       .configure()
       .validateMigrationNaming(true)
-      .dataSource(dataSource, cfg.db.user, cfg.db.pass)
+      .dataSource(cfg.db.url, cfg.db.user, cfg.db.pass)
       .load()
       .migrate()
-  }
 
   def getEnv(
     cfg: AppConfig
   ): ZLayer[Any, Nothing, Has[UserRepository.Service] with Has[AppLogger.Logger.Service] with Clock] = {
     logger.info(">>>>> Running Live Repository")
-    val dbCfg = LiveRepository.dbConfig(cfg)
-    LiveRepository.dbInit(cfg)
-    ZLayer.succeed(dbCfg) >>> LiveRepository.live ++ AppLogger.liveEnv ++ Clock.live
+    dbInit(cfg)
+    ZLayer.succeed(dbConfig(cfg)) >>> LiveRepository.live ++ AppLogger.liveEnv ++ Clock.live
   }
 }
