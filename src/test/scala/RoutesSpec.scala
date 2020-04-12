@@ -28,7 +28,7 @@ object RoutesSpec extends DefaultRunnableSpec {
 
       assertM(run(req))(equalTo(exp))
     } @@ ignore,
-    testM("Create User Request with Stub") {
+    testM("Create User") {
       val req: RequestT[sttp.client.Identity, Either[String, String], Nothing] = basicRequest
         .post(uri"http://localhost:5566/user")
         .body(user.asJson)
@@ -36,8 +36,23 @@ object RoutesSpec extends DefaultRunnableSpec {
       val exp: Response[Either[Nothing, Unit]] = Response.ok(Right(()))
 
       assertM(run(req))(equalTo(exp))
+    } @@ ignore,
+    testM("Get User") {
+      val req: RequestT[sttp.client.Identity, String, Nothing] = basicRequest
+        .get(uri"http://localhost:5566/user/11")
+        .response(asStringAlways)
 
-    }
+      val exp: Response[Json] = Response.ok(user.asJson)
+      assertM(run(req))(equalTo(exp))
+    },
+    testM("Delete User") {
+      val req: RequestT[sttp.client.Identity, String, Nothing] = basicRequest
+        .delete(uri"http://localhost:5566/user/11")
+        .response(asStringAlways)
+
+      val exp: Response[Unit] = Response.ok(())
+      assertM(run(req))(equalTo(exp))
+    } @@ ignore
   )
 
   // Define a Serializer

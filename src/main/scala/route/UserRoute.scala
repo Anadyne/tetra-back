@@ -103,8 +103,7 @@ class UserRoute[R <: UserRepository with Logger] extends Http4sDsl[RIO[R, *]] wi
     logger.debug(s"Del User called for user $id")
     val result = for {
       _ <- Logger.debug(s"id: $id")
-      // user <- UserRepository.getUser(id)
-      _ <- UserRepository.delete(0)
+      _ <- UserRepository.delete(id)
     } yield {}
 
     handleError(result)
