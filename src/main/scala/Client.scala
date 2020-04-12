@@ -1,7 +1,7 @@
 package org.fsf.tetra.client
 
-import sttp.client.{ RequestT, Response }
 import sttp.client.asynchttpclient.zio._
+import sttp.client.{ RequestT, Response }
 
 import zio.console.{ putStrLn, Console }
 import zio.{ URIO, ZEnv, ZIO }

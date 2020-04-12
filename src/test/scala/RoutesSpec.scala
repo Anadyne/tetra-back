@@ -33,7 +33,7 @@ object RoutesSpec extends DefaultRunnableSpec {
         .post(uri"http://localhost:5566/user")
         .body(user.asJson)
 
-      val exp: Response[Either[Nothing, User]] = Response.ok(Right(user))
+      val exp: Response[Either[Nothing, Unit]] = Response.ok(Right(()))
 
       assertM(run(req))(equalTo(exp))
 

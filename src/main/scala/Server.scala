@@ -33,6 +33,7 @@ object Server extends CatsApp {
     val res = for {
       cfg   <- ZIO.fromEither(loadConfig())
       dbCfg = ExtServices.dbConfig(cfg)
+      _     = ExtServices.dbInit(cfg)
       env   = ZLayer.succeed(dbCfg) >>> ExtServices.UserRepository.live ++ logger.liveEnv ++ Clock.live
       server <- ZIO
                  .runtime[AppEnvironment]

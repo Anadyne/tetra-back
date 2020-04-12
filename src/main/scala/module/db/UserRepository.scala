@@ -5,12 +5,12 @@ import scala.jdk.CollectionConverters._
 import io.circe.generic.auto._, io.circe.syntax._
 import io.getquill.{ H2JdbcContext, SnakeCase }
 
+import org.flywaydb.core.Flyway
 import org.fsf.tetra.model.config.config.AppConfig
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.{ DBFailure, ExpectedFailure }
 
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{ Config, ConfigFactory }
 
 import zio.{ Has, ZIO, ZLayer }
 
@@ -73,7 +73,7 @@ object ExtServices {
 
   }
 
-  def dbConfig(cfg: AppConfig) = {
+  def dbConfig(cfg: AppConfig): Config = {
     val map = Map(
       "dataSourceClassName" -> cfg.db.className,
       "dataSource.url"      -> cfg.db.url,
@@ -82,6 +82,16 @@ object ExtServices {
     ).asJava
 
     ConfigFactory.parseMap(map)
+  }
+
+  def dbInit(cfg: AppConfig): Int = {
+    val dataSource = cfg.db.url
+    Flyway
+      .configure()
+      .validateMigrationNaming(true)
+      .dataSource(dataSource, cfg.db.user, cfg.db.pass)
+      .load()
+      .migrate()
   }
 
 }
