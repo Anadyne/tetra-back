@@ -1,7 +1,7 @@
 package org.fsf.tetra
 
 import org.fsf.tetra.model.config.config.{ loadConfig }
-import org.fsf.tetra.module.db.LiveRepository
+import org.fsf.tetra.module.db._
 import org.fsf.tetra.module.logger.logger
 import org.fsf.tetra.route.UserRoute
 import org.http4s.implicits._
@@ -19,7 +19,10 @@ import types._
 import zio.clock.Clock
 import zio.console.putStrLn
 import zio.interop.catz._
-import zio.{ ZIO, ZLayer }
+import zio.{ Has, Ref, ZIO, ZLayer }
+import org.fsf.tetra.model.config.config.AppConfig
+import org.fsf.tetra.module.db.MockRepository
+import org.fsf.tetra.model.database.User
 
 object Server extends CatsApp {
 
@@ -29,12 +32,20 @@ object Server extends CatsApp {
     Router("/" -> userRoute.allRoutes, "/docs" -> new SwaggerHttp4s(yaml).routes[AppTask]).orNotFound
   private val finalHttpApp = Logger.httpApp[AppTask](true, true)(httpApp)
 
+  def liveEnv(cfg: AppConfig) = {
+    val dbCfg = LiveRepository.dbConfig(cfg)
+    LiveRepository.dbInit(cfg)
+    ZLayer.succeed(dbCfg) >>> LiveRepository.live ++ logger.liveEnv ++ Clock.live
+  }
+
+  def mockEnv(ref: MockType) = ZLayer.succeed(ref) >>> MockRepository.live ++ logger.liveEnv ++ Clock.live
+
   override def run(args: List[String]) = {
     val res = for {
-      cfg   <- ZIO.fromEither(loadConfig())
-      dbCfg = LiveRepository.dbConfig(cfg)
-      _     = LiveRepository.dbInit(cfg)
-      env   = ZLayer.succeed(dbCfg) >>> LiveRepository.live ++ logger.liveEnv ++ Clock.live
+      cfg <- ZIO.fromEither(loadConfig())
+      ref <- Ref.make(Map.empty[Long, User])
+      // env = liveEnv(cfg)
+      env = /* liveEnv(cfg) */ mockEnv(ref)
       server <- ZIO
                  .runtime[AppEnvironment]
                  .flatMap(implicit rts =>
