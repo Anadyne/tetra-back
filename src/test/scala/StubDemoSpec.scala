@@ -15,7 +15,7 @@ import sttp.tapir.server.stub._
 import zio.test.Assertion._
 import zio.test._
 
-object EndpointSpec extends DefaultRunnableSpec {
+object StubDemoSpec extends DefaultRunnableSpec {
   def spec = suite("Endpoints Spec")(
     test("Validate getUserEndpoint") {
 
