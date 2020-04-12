@@ -1,7 +1,5 @@
 package org.fsf.tetra
 
-import java.net.URI
-
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.response.ErrorResponse
 import org.fsf.tetra.route.Endpoints._
@@ -11,7 +9,6 @@ import sttp.client._
 import sttp.client.monad.MonadError
 import sttp.client.monad._
 import sttp.client.testing.SttpBackendStub
-import sttp.model.Uri
 import sttp.tapir.client.sttp._
 import sttp.tapir.server.stub._
 
@@ -30,7 +27,7 @@ object EndpointSpec extends DefaultRunnableSpec {
         .whenRequestMatches(getUserEndpoint)
         .thenSuccess(user)
 
-      val resp  = getUserEndpoint.toSttpRequestUnsafe(Uri(new URI("http://test.com"))).apply(11).send()
+      val resp  = getUserEndpoint.toSttpRequestUnsafe(uri"http://test.com").apply(11).send()
       val resp1 = basicRequest.get(uri"http://example.org/a/b/c").send()
       println(resp1)
 

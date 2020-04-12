@@ -7,7 +7,6 @@ import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.response.{ BadRequestResponse, ErrorResponse, InternalServerErrorResponse, NotFoundResponse }
 import org.fsf.tetra.model.{ DBFailure, ExpectedFailure, NotFoundFailure }
 import org.fsf.tetra.module.db.ExtServices.UserRepository
-import org.fsf.tetra.module.logger.logger.Logger
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
 
@@ -26,6 +25,7 @@ import zio.interop.catz._
 import zio.{ RIO, ZIO }
 
 object Endpoints {
+  private val userEndpoint = endpoint.in("user")
 
   val helloEndpoint: Endpoint[String, ErrorResponse, String, Nothing] = endpoint.get
     .in("hello")
@@ -38,8 +38,8 @@ object Endpoints {
     )
     .out(stringBody)
 
-  val getUserEndpoint: Endpoint[Long, ErrorResponse, User, Nothing] = endpoint.get
-    .in("user" / path[Long]("user id"))
+  val getUserEndpoint: Endpoint[Long, ErrorResponse, User, Nothing] = userEndpoint.get
+    .in(path[Long]("user id"))
     .errorOut(
       oneOf(
         statusMapping(StatusCodes.error, jsonBody[InternalServerErrorResponse]),
@@ -48,8 +48,7 @@ object Endpoints {
     )
     .out(jsonBody[User])
 
-  val createUserEndpoint: Endpoint[User, ErrorResponse, Unit, Nothing] = endpoint.post
-    .in("user")
+  val createUserEndpoint: Endpoint[User, ErrorResponse, Unit, Nothing] = userEndpoint.post
     .in(jsonBody[User])
     .errorOut(
       oneOf[ErrorResponse](
@@ -58,8 +57,8 @@ object Endpoints {
     )
     .out(statusCode(StatusCodes.success))
 
-  val deleteUserEndpoint: Endpoint[Long, ErrorResponse, Unit, Nothing] = endpoint.delete
-    .in("user" / path[Long]("user id"))
+  val deleteUserEndpoint: Endpoint[Long, ErrorResponse, Unit, Nothing] = userEndpoint.delete
+    .in(path[Long]("user id"))
     .errorOut(
       oneOf(
         statusMapping(StatusCodes.error, jsonBody[InternalServerErrorResponse]),

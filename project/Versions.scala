@@ -9,7 +9,7 @@ object Version {
 
   val quill  = "3.5.1"
   val h2db   = "1.4.200"
-  val flyway = "6.3.2"
+  val flyway = "6.3.3"
 
   val logback    = "1.2.3"
   val pureconfig = "0.12.3"
