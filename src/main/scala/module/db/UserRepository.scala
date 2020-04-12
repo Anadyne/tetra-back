@@ -14,7 +14,7 @@ import com.typesafe.config.{ Config, ConfigFactory }
 
 import zio.{ Has, ZIO, ZLayer }
 
-object ExtServices {
+object LiveServices {
 
   type UserRepository = Has[UserRepository.Service]
 
