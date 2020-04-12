@@ -4,11 +4,15 @@ import io.circe.generic.auto._, io.circe.syntax._
 
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.{ ExpectedFailure }
+import org.fsf.tetra.module.logging.AppLogger
 import org.fsf.tetra.types.MockType
 
-import zio.{ Has, Ref, ZIO, ZLayer }
+import com.typesafe.scalalogging.LazyLogging
 
-object MockRepository {
+import zio.clock.Clock
+import zio.{ Has, ZIO, ZLayer }
+
+object MockRepository extends LazyLogging {
 
   val live: ZLayer[Has[MockType], Nothing, Has[UserRepository.Service]] = ZLayer.fromService { ref: MockType =>
     new UserRepository.Service {
@@ -30,4 +34,12 @@ object MockRepository {
 
     }
   }
+
+  def getEnv(
+    ref: MockType
+  ): ZLayer[Any, Nothing, Has[UserRepository.Service] with Has[AppLogger.Logger.Service] with Clock] = {
+    logger.info(">>>>> Running Mock Repository")
+    ZLayer.succeed(ref) >>> MockRepository.live ++ AppLogger.liveEnv ++ Clock.live
+  }
+
 }

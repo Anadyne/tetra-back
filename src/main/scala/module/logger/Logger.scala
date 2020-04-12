@@ -1,9 +1,9 @@
-package org.fsf.tetra.module.logger
+package org.fsf.tetra.module.logging
 
 import zio.console.Console
 import zio.{ Has, UIO, ZIO, ZLayer }
 
-object logger {
+object AppLogger {
   type Logger = Has[Logger.Service]
 
   object Logger {

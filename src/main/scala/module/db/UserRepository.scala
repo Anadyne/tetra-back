@@ -1,11 +1,12 @@
 package org.fsf.tetra.module.db
 
+import org.fsf.tetra.model.ExpectedFailure
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.types.UserRepository
 
 import zio.{ ZIO }
-import org.fsf.tetra.model.ExpectedFailure
 
+// Generic Repository
 object UserRepository {
   trait Service {
     def hello(name: String): ZIO[Any, ExpectedFailure, String]

@@ -9,12 +9,15 @@ import org.flywaydb.core.Flyway
 import org.fsf.tetra.model.config.config.AppConfig
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.{ DBFailure, ExpectedFailure }
+import org.fsf.tetra.module.logging.AppLogger
 
 import com.typesafe.config.{ Config, ConfigFactory }
+import com.typesafe.scalalogging.LazyLogging
 
+import zio.clock.Clock
 import zio.{ Has, ZIO, ZLayer }
 
-object LiveRepository {
+object LiveRepository extends LazyLogging {
 
   val live: ZLayer[Has[Config], Nothing, Has[UserRepository.Service]] = ZLayer.fromService { cfg: Config =>
     new UserRepository.Service {
@@ -47,7 +50,7 @@ object LiveRepository {
     }
   }
 
-  def dbConfig(cfg: AppConfig): Config = {
+  private def dbConfig(cfg: AppConfig): Config = {
     val map = Map(
       "dataSourceClassName" -> cfg.db.className,
       "dataSource.url"      -> cfg.db.url,
@@ -58,7 +61,7 @@ object LiveRepository {
     ConfigFactory.parseMap(map)
   }
 
-  def dbInit(cfg: AppConfig): Int = {
+  private def dbInit(cfg: AppConfig): Int = {
     val dataSource = cfg.db.url
     Flyway
       .configure()
@@ -66,5 +69,14 @@ object LiveRepository {
       .dataSource(dataSource, cfg.db.user, cfg.db.pass)
       .load()
       .migrate()
+  }
+
+  def getEnv(
+    cfg: AppConfig
+  ): ZLayer[Any, Nothing, Has[UserRepository.Service] with Has[AppLogger.Logger.Service] with Clock] = {
+    logger.info(">>>>> Running Live Repository")
+    val dbCfg = LiveRepository.dbConfig(cfg)
+    LiveRepository.dbInit(cfg)
+    ZLayer.succeed(dbCfg) >>> LiveRepository.live ++ AppLogger.liveEnv ++ Clock.live
   }
 }

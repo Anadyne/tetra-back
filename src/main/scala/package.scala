@@ -1,11 +1,11 @@
 package org.fsf.tetra
 
+import org.fsf.tetra.model.database.User
 import org.fsf.tetra.module.db.UserRepository
-import org.fsf.tetra.module.logger.logger.Logger
+import org.fsf.tetra.module.logging.AppLogger.Logger
 
 import zio.clock.Clock
 import zio.{ Has, RIO, Ref }
-import org.fsf.tetra.model.database.User
 
 object types {
 
