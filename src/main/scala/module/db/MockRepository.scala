@@ -6,12 +6,12 @@ import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.{ ExpectedFailure }
 import org.fsf.tetra.module.db.ExtServices._
 
-import zio.{ Ref, ZIO, ZLayer }
+import zio.{ Has, Ref, ZIO, ZLayer }
 
-object mockRepository {
-  type MockR = Ref[Map[Long, User]]
+object MockRepository {
+  type MockType = Ref[Map[Long, User]]
 
-  val live: ZLayer[MockR, Nothing, UserRepository] = ZLayer.fromFunction { ref: MockR =>
+  val live: ZLayer[MockType, Nothing, UserRepository] = ZLayer.fromFunction { ref: MockType =>
     new UserRepository.Service {
 
       def hello(name: String): ZIO[Any, ExpectedFailure, String] = ZIO.succeed(User(13, "Boris", 34).asJson.toString)
