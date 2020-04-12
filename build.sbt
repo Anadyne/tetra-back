@@ -8,9 +8,6 @@ lazy val commonSettings = Seq(
 // Refine scalac params from tpolecat
   scalacOptions --= Seq(
     "-Xfatal-warnings"
-  ),
-  scalacOptions ++= Seq(
-    "-language:reflectiveCalls"
   )
 )
 
@@ -23,9 +20,7 @@ lazy val zioDeps = libraryDependencies ++= Seq(
 
 lazy val http4sDeps = libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-core"         % Version.http4s,
-  "org.http4s" %% "http4s-dsl"          % Version.http4s,
-  "org.http4s" %% "http4s-blaze-server" % Version.http4s,
-  "org.http4s" %% "http4s-circe"        % Version.http4s
+  "org.http4s" %% "http4s-blaze-server" % Version.http4s
 )
 
 lazy val tapirDeps = libraryDependencies ++= Seq(
@@ -41,8 +36,7 @@ lazy val tapirDeps = libraryDependencies ++= Seq(
 lazy val sttpDeps = libraryDependencies ++= Seq(
   "com.softwaremill.sttp.client" %% "core"                          % Version.sttp,
   "com.softwaremill.sttp.client" %% "circe"                         % Version.sttp,
-  "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % Version.sttp,
-  "io.circe"                     %% "circe-generic"                 % Version.circe
+  "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % Version.sttp
 )
 
 lazy val commonDeps = libraryDependencies ++= Seq(
@@ -56,7 +50,7 @@ lazy val commonDeps = libraryDependencies ++= Seq(
 
 lazy val root = (project in file("."))
   .settings(
-    organization := "FSF",
+    organization := "Anadyne",
     name := "tetra-back",
     version := "0.0.1",
     scalaVersion := "2.13.1",
