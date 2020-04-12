@@ -1,7 +1,7 @@
 package org.fsf.tetra
 
 import org.fsf.tetra.model.config.config.{ loadConfig }
-import org.fsf.tetra.module.db.LiveServices
+import org.fsf.tetra.module.db.LiveRepository
 import org.fsf.tetra.module.logger.logger
 import org.fsf.tetra.route.UserRoute
 import org.http4s.implicits._
@@ -32,9 +32,9 @@ object Server extends CatsApp {
   override def run(args: List[String]) = {
     val res = for {
       cfg   <- ZIO.fromEither(loadConfig())
-      dbCfg = LiveServices.dbConfig(cfg)
-      _     = LiveServices.dbInit(cfg)
-      env   = ZLayer.succeed(dbCfg) >>> LiveServices.UserRepository.live ++ logger.liveEnv ++ Clock.live
+      dbCfg = LiveRepository.dbConfig(cfg)
+      _     = LiveRepository.dbInit(cfg)
+      env   = ZLayer.succeed(dbCfg) >>> LiveRepository.live ++ logger.liveEnv ++ Clock.live
       server <- ZIO
                  .runtime[AppEnvironment]
                  .flatMap(implicit rts =>

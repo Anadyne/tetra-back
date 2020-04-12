@@ -2,11 +2,12 @@ package org.fsf.tetra.route
 
 import io.circe.generic.auto._
 
+import org.fsf.tetra.types.UserRepository
 import org.fsf.tetra.implicits.Throwable._
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.response.{ BadRequestResponse, ErrorResponse, InternalServerErrorResponse, NotFoundResponse }
 import org.fsf.tetra.model.{ DBFailure, ExpectedFailure, NotFoundFailure }
-import org.fsf.tetra.module.db.LiveServices.UserRepository
+import org.fsf.tetra.module.db.{ UserRepository }
 import org.fsf.tetra.module.logger.logger.Logger
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
