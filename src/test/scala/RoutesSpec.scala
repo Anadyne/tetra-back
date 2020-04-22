@@ -4,7 +4,6 @@ import io.circe.Json
 import io.circe.generic.auto._
 import io.circe.generic.auto._, io.circe.syntax._
 
-import org.fsf.tetra.client.Client
 import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.database.User
 
@@ -14,7 +13,7 @@ import sttp.model.MediaType.ApplicationJson
 import zio.test.Assertion._
 import zio.test.TestAspect.ignore
 import zio.test._
-import zio.{ ZEnv }
+import Common._
 
 object RoutesSpec extends DefaultRunnableSpec {
   def spec = suite("Routes Spec")(
@@ -26,7 +25,7 @@ object RoutesSpec extends DefaultRunnableSpec {
 
       val exp: Response[Either[Nothing, String]] = Response.ok(Right(user.asJson.toString))
 
-      assertM(run(req))(equalTo(exp))
+      assertM(runme(req))(equalTo(exp))
     } @@ ignore,
     testM("Create User") {
       val req: RequestT[sttp.client.Identity, Either[String, String], Nothing] = basicRequest
@@ -35,7 +34,7 @@ object RoutesSpec extends DefaultRunnableSpec {
 
       val exp: Response[Either[Nothing, Unit]] = Response.ok(Right(()))
 
-      assertM(run(req))(equalTo(exp))
+      assertM(runme(req))(equalTo(exp))
     } @@ ignore,
     testM("Get User") {
       val req: RequestT[sttp.client.Identity, String, Nothing] = basicRequest
@@ -43,7 +42,7 @@ object RoutesSpec extends DefaultRunnableSpec {
         .response(asStringAlways)
 
       val exp: Response[Json] = Response.ok(user.asJson)
-      assertM(run(req))(equalTo(exp))
+      assertM(runme(req))(equalTo(exp))
     },
     testM("Delete User") {
       val req: RequestT[sttp.client.Identity, String, Nothing] = basicRequest
@@ -51,7 +50,7 @@ object RoutesSpec extends DefaultRunnableSpec {
         .response(asStringAlways)
 
       val exp: Response[Unit] = Response.ok(())
-      assertM(run(req))(equalTo(exp))
+      assertM(runme(req))(equalTo(exp))
     } @@ ignore
   )
 
@@ -61,9 +60,5 @@ object RoutesSpec extends DefaultRunnableSpec {
   }
 
   val user = User(11, "Boris", 15)
-
-  private val client = new Client()
-
-  private def run[A](req: RequestT[sttp.client.Identity, A, Nothing]) = client.run[A](req).provideLayer(ZEnv.live)
 
 }
