@@ -1,11 +1,11 @@
 package org.fsf.tetra.client
 
+import Common._
 import sttp.client._
 
 import zio.test.Assertion._
 import zio.test.TestAspect.ignore
 import zio.test._
-import Common._
 
 object AuthSpec extends DefaultRunnableSpec {
   def spec = suite("Auth Spec")(

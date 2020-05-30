@@ -1,8 +1,11 @@
 package org.fsf.tetra
 
+import java.util.concurrent.Executors
+
+import scala.concurrent.ExecutionContext
+
 import org.fsf.tetra.model.config.config.{ loadConfig }
 import org.fsf.tetra.model.database.User
-import org.fsf.tetra.module.db._
 import org.fsf.tetra.module.db.{ LiveRepository, MockRepository }
 import org.fsf.tetra.route.UserRoute
 import org.http4s.implicits._
@@ -17,11 +20,13 @@ import sttp.tapir.openapi.circe.yaml._
 import sttp.tapir.swagger.http4s.SwaggerHttp4s
 import types._
 
-import zio.console.putStrLn
 import zio.interop.catz._
 import zio.{ Ref, ZIO }
 
 object Server extends CatsApp {
+
+  // val ec = ExecutionContext.global
+  val blockingEC = ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
 
   private val userRoute = new UserRoute[AppEnvironment]
   private val yaml      = userRoute.getEndpoints.toOpenAPI("User", "1.0").toYaml
@@ -52,6 +57,6 @@ object Server extends CatsApp {
                  .orDie
     } yield server
 
-    res.foldM(err => putStrLn(s"Execution failed with: $err") *> ZIO.succeed(1), _ => ZIO.succeed(0))
+    res.exitCode //foldM(err => putStrLn(s"Execution failed with: $err") *> ZIO.exit, _ => ZIO.succeed(0))
   }
 }

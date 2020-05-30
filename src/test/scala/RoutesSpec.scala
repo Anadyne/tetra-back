@@ -2,18 +2,17 @@ package org.fsf.tetra.client
 
 import io.circe.Json
 import io.circe.generic.auto._
-import io.circe.generic.auto._, io.circe.syntax._
+import io.circe.syntax._
 
 import org.fsf.tetra.model.database.User
-import org.fsf.tetra.model.database.User
 
+import Common._
 import sttp.client._
 import sttp.model.MediaType.ApplicationJson
 
 import zio.test.Assertion._
 import zio.test.TestAspect.ignore
 import zio.test._
-import Common._
 
 object RoutesSpec extends DefaultRunnableSpec {
   def spec = suite("Routes Spec")(

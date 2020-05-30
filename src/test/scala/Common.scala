@@ -1,9 +1,9 @@
 package org.fsf.tetra.client
 
+import sttp.client.RequestT
 import sttp.client._
 
 import zio.{ ZEnv }
-import sttp.client.RequestT
 
 object Common {
   private[client] val client = new Client()

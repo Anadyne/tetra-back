@@ -2,8 +2,8 @@ package org.fsf.tetra.module.db
 
 import io.circe.generic.auto._, io.circe.syntax._
 
-import org.fsf.tetra.model.database.User
 import org.fsf.tetra.model.{ ExpectedFailure }
+import org.fsf.tetra.model.database.User
 import org.fsf.tetra.module.logging.AppLogger
 import org.fsf.tetra.types.MockType
 
