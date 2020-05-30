@@ -46,7 +46,8 @@ object Server extends CatsApp {
       server <- ZIO
                  .runtime[AppEnvironment]
                  .flatMap(implicit rts =>
-                   BlazeServerBuilder[AppTask]
+                   BlazeServerBuilder
+                     .apply[AppTask](blockingEC)
                      .bindHttp(cfg.server.port, cfg.server.host)
                      .withHttpApp(CORS(finalHttpApp))
                      .serve
@@ -57,6 +58,6 @@ object Server extends CatsApp {
                  .orDie
     } yield server
 
-    res.exitCode //foldM(err => putStrLn(s"Execution failed with: $err") *> ZIO.exit, _ => ZIO.succeed(0))
+    res.exitCode
   }
 }
