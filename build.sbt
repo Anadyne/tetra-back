@@ -1,15 +1,26 @@
+import BuildHelper._
+import higherkindness.mu.rpc.srcgen.Model._
+
 resolvers ++= Seq(
   Resolver.mavenLocal,
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots")
 )
 
-lazy val commonSettings = Seq(
-// Refine scalac params from tpolecat
-  scalacOptions --= Seq(
-    "-Xfatal-warnings"
+lazy val protocol = project
+  .settings(
+    name := "tetra-protocol",
+    libraryDependencies ++= Seq(
+      // Needed for the generated code to compile
+      "io.higherkindness" %% "mu-rpc-service" % Version.mu
+    ),
+    // Needed to expand the @service macro annotation
+    macroSettings,
+    // Generate sources from .proto files
+    muSrcGenIdlType := IdlType.Proto,
+    // Make it easy for 3rd-party clients to communicate with us via gRPC
+    muSrcGenIdiomaticEndpoints := true
   )
-)
 
 lazy val zioDeps = libraryDependencies ++= Seq(
   "dev.zio" %% "zio"              % Version.zio,
@@ -53,17 +64,20 @@ lazy val root = (project in file("."))
     organization := "Anadyne",
     name := "tetra-back",
     version := "0.0.1",
-    scalaVersion := "2.13.2",
+    scalaVersion := "2.12.11",
     maxErrors := 5,
     commonSettings,
+    commonDeps,
     zioDeps,
     http4sDeps,
     tapirDeps,
     sttpDeps,
-    commonDeps,
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
-    addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
+    addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.11.0" cross CrossVersion.full),
+    addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
   )
+  .dependsOn(protocol)
+  .aggregate(protocol)
 
 // Aliases
 addCommandAlias("rel", "reload")

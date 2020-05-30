@@ -4,11 +4,11 @@ import sttp.client.asynchttpclient.zio._
 import sttp.client.{ RequestT, Response }
 
 import zio.console.{ putStrLn, Console }
-import zio.{ URIO, ZEnv, ZIO }
+import zio.{ ZIO }
 
 class Client() {
 
-  def run[A](req: RequestT[sttp.client.Identity, A, Nothing]): URIO[ZEnv, Serializable] = {
+  def run[A](req: RequestT[sttp.client.Identity, A, Nothing]) = {
 
     // create a description of a program, which requires two dependencies in the environment:
     // the SttpClient, and the Console
