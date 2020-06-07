@@ -1,26 +1,10 @@
 import BuildHelper._
-import higherkindness.mu.rpc.srcgen.Model._
 
 resolvers ++= Seq(
   Resolver.mavenLocal,
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots")
 )
-
-lazy val protocol = project
-  .settings(
-    name := "tetra-protocol",
-    libraryDependencies ++= Seq(
-      // Needed for the generated code to compile
-      "io.higherkindness" %% "mu-rpc-service" % Version.mu
-    ),
-    // Needed to expand the @service macro annotation
-    macroSettings,
-    // Generate sources from .proto files
-    muSrcGenIdlType := IdlType.Proto,
-    // Make it easy for 3rd-party clients to communicate with us via gRPC
-    muSrcGenIdiomaticEndpoints := true
-  )
 
 lazy val zioDeps = libraryDependencies ++= Seq(
   "dev.zio" %% "zio"              % Version.zio,
@@ -76,8 +60,6 @@ lazy val root = (project in file("."))
     addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.11.0" cross CrossVersion.full),
     addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
   )
-  .dependsOn(protocol)
-  .aggregate(protocol)
 
 // Aliases
 addCommandAlias("rel", "reload")

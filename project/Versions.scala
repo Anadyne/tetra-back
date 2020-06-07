@@ -2,7 +2,6 @@ object Version {
   val zio            = "1.0.0-RC20"
   val zioInteropCats = "2.1.3.0-RC15"
 
-  val mu     = "0.22.1"
   val http4s = "0.21.4"
   val tapir  = "0.15.3"
   val sttp   = "2.1.5"
