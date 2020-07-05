@@ -48,7 +48,7 @@ lazy val root = (project in file("."))
     organization := "Anadyne",
     name := "tetra-back",
     version := "0.0.1",
-    scalaVersion := "2.12.11",
+    scalaVersion := "2.13.3",
     maxErrors := 5,
     commonSettings,
     commonDeps,
@@ -67,4 +67,4 @@ addCommandAlias("com", "all compile test:compile it:compile")
 addCommandAlias("fix", "all compile:scalafix test:scalafix")
 addCommandAlias("fmt", "all scalafmtSbt scalafmtAll")
 
-scalafixDependencies in ThisBuild += "com.nequissimus" %% "sort-imports" % "0.5.0"
+scalafixDependencies in ThisBuild += "com.nequissimus" %% "sort-imports" % "0.5.4"
